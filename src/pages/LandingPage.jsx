@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import Logo from "../components/Logo";
 import PageTransition from "../components/PageTransition";
 
 export default function LandingPage() {
@@ -13,8 +14,7 @@ export default function LandingPage() {
         <nav className="fixed top-0 w-full z-50 glass-nav shadow-sm">
           <div className="flex flex-row-reverse items-center justify-between px-6 py-4 w-full max-w-7xl mx-auto">
             <div className="flex items-center gap-4">
-              <img alt="OrderIt Logo" className="h-10 w-auto" data-alt="Modern minimalist logo for a restaurant technology company in vibrant primary red with sleek typography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1guH0D53ptYi7qwPhGtgVAsnem5NyKszFSldStUt7UfukbFPSpTl85FDp4o31KzlbncB55gQO1sdCN_zRzP0R_K76tRSsw8c4X-9yX_5oko1PzL4twyeye6qrEOlXOT1w8tH_SZmE1isD4iM3ZDtvh3uLOy21l3bb-16kGb7pOnUL3ajGU_juhpNT_zEch8ojxyMuQjpilYxVN-AuUOIJg0NjFBISg2xgvGnoEFr7qdHk2RPbdPj3SR18wRd5fcBXThds_NGOQhIO" />
-              <span className="text-2xl font-black text-primary tracking-tighter">OrderIt</span>
+              <Logo size="xl" />
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a className="text-primary font-bold border-b-2 border-primary pb-1" href="#home">الرئيسية</a>
@@ -309,7 +309,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
               <div className="md:col-span-1">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-3xl font-black text-primary">OrderIt</span>
+                  <Logo size="xl" />
                 </div>
                 <p className="text-secondary leading-relaxed mb-6">نحن نؤمن بأن التكنولوجيا هي المفتاح لتحسين تجربة الضيافة وتحقيق النمو المستدام للمطاعم.</p>
                 <div className="flex gap-4">
@@ -350,7 +350,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex flex-col md:flex-row-reverse justify-between items-center gap-6 pt-8 border-t border-outline-variant/10">
-              <p className="text-xs uppercase tracking-widest text-secondary">© 2024 OrderIt. جميع الحقوق محفوظة.</p>
+              <p className="text-xs uppercase tracking-widest text-secondary">© 2026 OrderIt. جميع الحقوق محفوظة.</p>
               <div className="flex gap-6">
                 <a className="text-xs uppercase tracking-widest text-secondary hover:underline" href="#">Privacy Policy</a>
                 <a className="text-xs uppercase tracking-widest text-secondary hover:underline" href="#">Terms of Service</a>

@@ -13,7 +13,7 @@ const fallbackImages = [
 ];
 
 function ItemCard({ item }) {
-  const { items, addItem, updateQty } = useCart();
+  const { items, addItem, updateQty, updateNote } = useCart();
   const cartItem = items.find(i => i.id === item.id);
   const qty = cartItem?.qty || 0;
 
@@ -51,11 +51,20 @@ function ItemCard({ item }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="flex items-center gap-2 bg-[#222] rounded-lg px-2 h-10"
+                className="flex flex-col gap-2 items-end w-max mt-2"
               >
-                <button onClick={() => updateQty(item.id, qty - 1)} className="text-primary flex items-center justify-center h-full w-4"><span className="material-symbols-outlined text-sm">remove</span></button>
-                <span className="text-white font-bold w-4 text-center">{qty}</span>
-                <button onClick={() => addItem(item)} className="text-primary flex items-center justify-center h-full w-4"><span className="material-symbols-outlined text-sm">add</span></button>
+                <div className="flex items-center gap-2 bg-[#222] rounded-lg px-2 h-10 w-full justify-between">
+                  <button onClick={() => updateQty(item.id, qty - 1)} className="text-primary flex items-center justify-center h-full w-4"><span className="material-symbols-outlined text-sm">remove</span></button>
+                  <span className="text-white font-bold w-4 text-center">{qty}</span>
+                  <button onClick={() => addItem(item)} className="text-primary flex items-center justify-center h-full w-4"><span className="material-symbols-outlined text-sm">add</span></button>
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="ملاحظة للمطبخ..." 
+                  value={cartItem.note || ''}
+                  onChange={(e) => updateNote(item.id, e.target.value)}
+                  className="w-[120px] text-[10px] bg-[#222] border border-white/5 rounded-lg p-1.5 focus:border-primary outline-none text-right placeholder-zinc-500 text-white" 
+                />
               </motion.div>
             )}
           </AnimatePresence>

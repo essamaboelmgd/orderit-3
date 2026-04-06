@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageTransition from '../../components/PageTransition';
 import AdminSidebar from '../../components/AdminSidebar';
+import Logo from '../../components/Logo';
 
 const recentOrders = [
   { id: '#10294', table: 'طاولة 08', items: 'برجر لحم، بطاطس مقلية، بيبسي...', total: '145 ر.س', status: 'جديد' },
@@ -25,7 +26,7 @@ export default function AdminDashboard() {
     <PageTransition>
       <div className="bg-surface text-on-surface antialiased min-h-screen pb-16 md:pb-0" dir="rtl">
         <AdminSidebar />
-        
+
         <main className="md:mr-64 min-h-screen flex flex-col transition-all">
           {/* TopAppBar Integration */}
           <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl shadow-sm px-6 py-3 flex flex-row-reverse items-center justify-between w-full">
@@ -50,7 +51,7 @@ export default function AdminDashboard() {
 
           {/* Page Content Canvas */}
           <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full flex-grow text-right">
-            
+
             {/* Quick Actions Banner */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button onClick={() => navigate('/admin/menu')} className="flex items-center justify-center gap-3 bg-primary text-white p-5 rounded-xl shadow-sm hover:opacity-90 transition-all active:scale-[0.98]">
@@ -163,7 +164,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Footer Integration */}
-          <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
+          {/* <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
             <div className="flex items-center gap-4 flex-row-reverse">
               <span className="text-lg font-black text-primary">OrderIt</span>
               <span className="text-xs uppercase tracking-widest text-neutral-500">© 2026 OrderIt. All rights reserved.</span>
@@ -173,7 +174,7 @@ export default function AdminDashboard() {
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Terms of Service</a>
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Help Center</a>
             </div>
-          </footer>
+          </footer> */}
         </main>
       </div>
     </PageTransition>

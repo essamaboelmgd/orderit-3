@@ -13,7 +13,7 @@ const fallbackImages = [
 ];
 
 function ItemCard({ item }) {
-  const { items, addItem, updateQty } = useCart();
+  const { items, addItem, updateQty, updateNote } = useCart();
   const cartItem = items.find(i => i.id === item.id);
   const qty = cartItem?.qty || 0;
 
@@ -54,11 +54,20 @@ function ItemCard({ item }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="flex items-center bg-surface-container rounded-lg px-2 py-1 gap-3"
+                className="flex flex-col gap-2 items-end w-full mt-2"
               >
-                <button onClick={() => updateQty(item.id, qty - 1)} className="text-primary font-black"><span className="material-symbols-outlined text-sm">remove</span></button>
-                <span className="text-sm font-bold w-4 text-center">{qty}</span>
-                <button onClick={() => addItem(item)} className="text-primary font-black"><span className="material-symbols-outlined text-sm">add</span></button>
+                <div className="flex items-center bg-surface-container rounded-lg px-2 py-1 gap-3">
+                  <button onClick={() => updateQty(item.id, qty - 1)} className="text-primary font-black"><span className="material-symbols-outlined text-sm">remove</span></button>
+                  <span className="text-sm font-bold w-4 text-center">{qty}</span>
+                  <button onClick={() => addItem(item)} className="text-primary font-black"><span className="material-symbols-outlined text-sm">add</span></button>
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="ملاحظة للمطبخ (اختياري)..." 
+                  value={cartItem.note || ''}
+                  onChange={(e) => updateNote(item.id, e.target.value)}
+                  className="w-full text-xs bg-surface-container-low border border-outline-variant/10 rounded-lg p-2 focus:border-primary outline-none text-right placeholder:text-secondary" 
+                />
               </motion.div>
             )}
           </AnimatePresence>

@@ -14,7 +14,7 @@ const fallbackImages = [
 
 function ItemModal({ item, onClose, onSave }) {
   const [form, setForm] = useState(item || { name: '', nameEn: '', description: '', price: '', categoryId: categories[0].id, available: true });
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -148,7 +148,7 @@ export default function MenuManagement() {
     <PageTransition>
       <div className="bg-surface text-on-surface antialiased min-h-screen pb-16 md:pb-0 font-body" dir="rtl">
         <AdminSidebar />
-        
+
         <main className="md:mr-64 min-h-screen flex flex-col transition-all">
           {/* TopAppBar Integration */}
           <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl shadow-sm px-6 py-3 flex flex-row-reverse items-center justify-between w-full">
@@ -173,7 +173,7 @@ export default function MenuManagement() {
 
           {/* Page Content Canvas */}
           <div className="py-6 px-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full flex-grow text-right">
-            
+
             {/* Dashboard Header */}
             <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
@@ -203,14 +203,13 @@ export default function MenuManagement() {
                     {categories.map(cat => {
                       const isActive = activeCat === cat.id;
                       return (
-                        <div 
-                          key={cat.id} 
+                        <div
+                          key={cat.id}
                           onClick={() => setActiveCat(cat.id)}
-                          className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer group ${
-                            isActive 
-                            ? 'bg-surface-container-lowest border border-primary/20 shadow-sm' 
+                          className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer group ${isActive
+                            ? 'bg-surface-container-lowest border border-primary/20 shadow-sm'
                             : 'bg-surface-container-lowest/50 hover:bg-surface-container-lowest'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <span className={`material-symbols-outlined cursor-grab ${isActive ? 'text-neutral-400' : 'text-neutral-300 group-hover:text-neutral-400'}`}>drag_indicator</span>
@@ -228,7 +227,7 @@ export default function MenuManagement() {
                     })}
                   </div>
                 </div>
-                
+
                 <div className="bg-primary-fixed rounded-xl p-6 text-on-primary-fixed">
                   <p className="text-xs uppercase tracking-widest font-bold mb-2">تحديث القائمة</p>
                   <p className="text-sm opacity-80 leading-relaxed">يمكنك سحب وإفلات التصنيفات لتغيير ترتيب ظهورها للعملاء في التطبيق المباشر.</p>
@@ -257,13 +256,13 @@ export default function MenuManagement() {
                       <div key={item.id} className={`bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col h-full border border-transparent hover:border-outline-variant/15 ${!item.available ? 'opacity-70' : ''}`}>
                         <div className={`h-48 overflow-hidden relative ${!item.available ? 'grayscale' : ''}`}>
                           <img alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={imgSrc} />
-                          
+
                           {!item.available && (
                             <div className="absolute inset-0 bg-neutral-900/40 flex items-center justify-center pointer-events-none">
                               <span className="bg-white px-4 py-1 rounded-full text-xs font-black text-neutral-800 tracking-widest uppercase shadow-md">غير متوفر</span>
                             </div>
                           )}
-                          
+
                           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-md shadow-sm pointer-events-none">
                             <span className="text-primary font-black text-sm">{typeof item.price === 'number' ? item.price.toFixed(2) : item.price} ر.س</span>
                           </div>
@@ -291,19 +290,19 @@ export default function MenuManagement() {
                 </div>
               </section>
             </div>
-            
+
             {/* FAB: Add Item */}
-            <button 
+            <button
               onClick={() => { setEditItem(null); setShowModal(true); }}
               className="fixed bottom-24 md:bottom-8 left-8 bg-primary text-on-primary w-16 h-16 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-all z-20"
             >
               <span className="material-symbols-outlined text-4xl">add</span>
             </button>
-            
+
           </div>
 
           {/* Footer Integration */}
-          <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
+          {/* <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
             <div className="flex items-center gap-4 flex-row-reverse">
               <span className="text-lg font-black text-primary">OrderIt</span>
               <span className="text-xs uppercase tracking-widest text-neutral-500">© 2026 OrderIt. All rights reserved.</span>
@@ -313,9 +312,9 @@ export default function MenuManagement() {
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Terms of Service</a>
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Help Center</a>
             </div>
-          </footer>
+          </footer> */}
         </main>
-        
+
         <AnimatePresence>
           {showModal && (
             <ItemModal

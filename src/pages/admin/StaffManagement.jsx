@@ -12,7 +12,7 @@ export default function StaffManagement() {
     <PageTransition>
       <div className="bg-surface text-on-surface antialiased min-h-screen pb-16 md:pb-0 font-body" dir="rtl">
         <AdminSidebar />
-        
+
         <main className="md:mr-64 min-h-screen flex flex-col transition-all">
           {/* TopAppBar Integration */}
           <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl shadow-sm px-6 py-3 flex flex-row-reverse items-center justify-between w-full">
@@ -37,14 +37,14 @@ export default function StaffManagement() {
 
           {/* Page Content Canvas */}
           <div className="py-6 px-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full flex-grow text-right">
-            
+
             {/* Header / Actions */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
               <div>
                 <h1 className="text-3xl font-black text-on-surface tracking-tight mb-1">إدارة الموظفين</h1>
                 <p className="text-secondary font-medium uppercase tracking-widest text-xs">Staff Board &amp; Operations</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowModal(true)}
                 className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2 active:scale-95 transition-transform"
               >
@@ -60,7 +60,7 @@ export default function StaffManagement() {
                 <p className="font-bold text-lg opacity-90">إجمالي الموظفين</p>
                 <h3 className="text-5xl font-black tracking-tighter">٢٤</h3>
               </div>
-              
+
               <div className="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl border-none shadow-sm flex items-center justify-between">
                 <div className="space-y-2">
                   <h4 className="text-secondary font-bold uppercase tracking-widest text-xs">نظرة سريعة على الوردية</h4>
@@ -89,7 +89,7 @@ export default function StaffManagement() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden overflow-x-auto">
                 <table className="w-full text-right border-collapse">
                   <thead>
@@ -103,7 +103,7 @@ export default function StaffManagement() {
                     </tr>
                   </thead>
                   <tbody className="text-on-surface">
-                    
+
                     {/* Row 1 */}
                     <tr className="hover:bg-neutral-50 transition-colors group border-b border-surface-container-low">
                       <td className="px-6 py-5">
@@ -133,7 +133,7 @@ export default function StaffManagement() {
                         </button>
                       </td>
                     </tr>
-                    
+
                     {/* Row 2 */}
                     <tr className="hover:bg-neutral-50 transition-colors group border-b border-surface-container-low">
                       <td className="px-6 py-5">
@@ -202,7 +202,7 @@ export default function StaffManagement() {
           </div>
 
           {/* Footer Integration */}
-          <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
+          {/* <footer className="mt-auto w-full border-t border-neutral-200 bg-neutral-50 flex flex-col md:flex-row-reverse justify-between items-center px-8 py-12 gap-6 pb-24 md:pb-12 text-right">
             <div className="flex items-center gap-4 flex-row-reverse">
               <span className="text-lg font-black text-primary">OrderIt</span>
               <span className="text-xs uppercase tracking-widest text-neutral-500">© 2026 OrderIt. All rights reserved.</span>
@@ -212,7 +212,7 @@ export default function StaffManagement() {
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Terms of Service</a>
               <a className="text-xs uppercase tracking-widest text-neutral-500 hover:text-red-600 transition-all" href="#">Help Center</a>
             </div>
-          </footer>
+          </footer> */}
         </main>
       </div>
 
@@ -234,14 +234,14 @@ export default function StaffManagement() {
             >
               <div className="p-6 border-b border-surface-container flex justify-between items-center bg-primary text-white">
                 <h3 className="text-xl font-bold">إضافة موظف جديد</h3>
-                <button 
+                <button
                   onClick={() => setShowModal(false)}
                   className="text-white/80 hover:text-white"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-              
+
               <div className="p-8 space-y-6">
                 <div className="space-y-2 text-right">
                   <label className="block text-sm font-bold text-secondary">اسم الموظف</label>
@@ -255,7 +255,7 @@ export default function StaffManagement() {
                   <label className="block text-sm font-bold text-secondary">رمز PIN (٤ أرقام)</label>
                   <input className="w-full bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none text-center tracking-[1em]" maxLength="4" placeholder="••••" type="password" />
                 </div>
-                <button 
+                <button
                   onClick={() => setShowModal(false)}
                   className="w-full bg-primary text-on-primary py-4 rounded-lg font-black text-lg shadow-lg active:scale-95 transition-transform"
                 >

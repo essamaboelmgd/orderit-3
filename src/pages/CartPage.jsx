@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
@@ -6,8 +5,7 @@ import { useCart } from '../context/CartContext';
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { items, updateQty, removeItem, totalPrice, tableNumber } = useCart();
-  const [notes, setNotes] = useState('');
+  const { items, updateQty, removeItem, updateNote, totalPrice, tableNumber } = useCart();
 
   if (items.length === 0) {
     return (
@@ -57,8 +55,17 @@ export default function CartPage() {
                   {item.icon || '🍱'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-gray-900 text-sm">{item.name}</p>
-                  <p className="text-primary font-bold text-sm">{item.price} ج.م</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-bold text-gray-900 text-sm">{item.name}</p>
+                    <p className="text-primary font-bold text-sm">{item.price} ج.م</p>
+                  </div>
+                  <input
+                    type="text"
+                    value={item.note || ''}
+                    onChange={e => updateNote(item.id, e.target.value)}
+                    placeholder="ملاحظة للمطبخ (اختياري)..."
+                    className="w-full mt-2 text-xs bg-gray-50 border border-gray-200 rounded-lg p-2 focus:outline-none focus:border-primary text-right"
+                  />
                 </div>
                 <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
                   <button onClick={() => updateQty(item.id, item.qty - 1)} className="text-primary font-black w-6 text-center">−</button>
@@ -79,16 +86,7 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Notes */}
-          <div className="bg-white rounded-2xl shadow-sm p-4">
-            <label className="block font-bold text-gray-900 mb-2">ملاحظات للمطبخ</label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="أي طلبات خاصة؟ مثلاً: بدون بصل"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-            />
-          </div>
+
 
           {/* Price summary */}
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">

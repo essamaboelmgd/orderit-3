@@ -11,9 +11,11 @@ export function CartProvider({ children }) {
     setItems(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
+        // If an item with the exact same ID exists, we just increase qty
+        // To allow different notes on same items, we would need unique instance IDs, but we will stick to basic qty grouping for now alongside updateNote
         return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
       }
-      return [...prev, { ...item, qty: 1 }];
+      return [...prev, { ...item, qty: 1, note: item.note || '' }];
     });
   };
 
@@ -27,6 +29,10 @@ export function CartProvider({ children }) {
       return;
     }
     setItems(prev => prev.map(i => i.id === itemId ? { ...i, qty } : i));
+  };
+
+  const updateNote = (itemId, note) => {
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, note } : i));
   };
 
   const clearCart = () => {
@@ -43,7 +49,7 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider value={{
       items, tableNumber, restaurantId,
-      addItem, removeItem, updateQty, clearCart,
+      addItem, removeItem, updateQty, updateNote, clearCart,
       setTable, setRestaurantId,
       totalItems, totalPrice,
     }}>

@@ -1,5 +1,6 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Public pages
 import LandingPage from './pages/LandingPage';
@@ -19,6 +20,7 @@ import MenuManagement from './pages/admin/MenuManagement';
 import TablesManagement from './pages/admin/TablesManagement';
 import LiveOrders from './pages/admin/LiveOrders';
 import StaffManagement from './pages/admin/StaffManagement';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // Staff page
 import StaffView from './pages/StaffView';
@@ -26,6 +28,7 @@ import StaffView from './pages/StaffView';
 // Super admin pages
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import RestaurantsList from './pages/superadmin/RestaurantsList';
+import PlatformSettings from './pages/superadmin/PlatformSettings';
 
 export default function App() {
   const location = useLocation();
@@ -40,14 +43,16 @@ export default function App() {
         <Route path="/menu-2" element={<MenuPage2 />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/order-success" element={<OrderSuccessPage />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/menu" element={<MenuManagement />} />
-        <Route path="/admin/tables" element={<TablesManagement />} />
-        <Route path="/admin/orders" element={<LiveOrders />} />
-        <Route path="/admin/staff" element={<StaffManagement />} />
-        <Route path="/staff" element={<StaffView />} />
-        <Route path="/superadmin" element={<SuperAdminDashboard />} />
-        <Route path="/superadmin/restaurants" element={<RestaurantsList />} />
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/menu" element={<ProtectedRoute allowedRoles={['admin']}><MenuManagement /></ProtectedRoute>} />
+        <Route path="/admin/tables" element={<ProtectedRoute allowedRoles={['admin']}><TablesManagement /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
+        <Route path="/admin/orders" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><LiveOrders /></ProtectedRoute>} />
+        <Route path="/admin/staff" element={<ProtectedRoute allowedRoles={['admin']}><StaffManagement /></ProtectedRoute>} />
+        <Route path="/staff" element={<Navigate to="/admin/orders" replace />} />
+        <Route path="/superadmin" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/restaurants" element={<ProtectedRoute allowedRoles={['superadmin']}><RestaurantsList /></ProtectedRoute>} />
+        <Route path="/superadmin/settings" element={<ProtectedRoute allowedRoles={['superadmin']}><PlatformSettings /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   );

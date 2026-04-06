@@ -3,10 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+
+  const handleLogin = () => {
+    setError('');
+    const result = login(form);
+    if (result.success) {
+      if (result.role === 'superadmin') navigate('/superadmin');
+      else if (result.role === 'admin') navigate('/admin');
+      else if (result.role === 'staff') navigate('/admin/orders');
+    } else {
+      setError(result.message);
+    }
+  };
 
   return (
     <PageTransition>
@@ -27,6 +42,8 @@ export default function LoginPage() {
             <h1 className="text-2xl font-black text-gray-900">تسجيل دخول المطعم</h1>
             <p className="text-secondary text-sm mt-1">مرحباً بعودتك، أدخل بياناتك للمتابعة</p>
           </div>
+
+          {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-bold text-center">{error}</div>}
 
           <div className="space-y-4">
             <div>
@@ -53,7 +70,7 @@ export default function LoginPage() {
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/admin')}
+            onClick={handleLogin}
             className="w-full bg-primary text-white py-4 rounded-lg font-bold text-lg mt-6 shadow-lg hover:bg-primary-dark transition-all"
           >
             دخول

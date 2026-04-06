@@ -102,7 +102,7 @@ export default function OrderSuccessPage() {
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/menu')}
+            onClick={() => navigate(`/menu?table=${tableNumber}`)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}

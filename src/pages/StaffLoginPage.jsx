@@ -3,13 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
 
 const NUMPAD = [1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'del'];
 
 export default function StaffLoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [restaurant, setRestaurant] = useState('');
   const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+
+  const submitLogin = (currentPin) => {
+    setError('');
+    const result = login({ pin: currentPin });
+    if (result.success) {
+      navigate('/admin/orders');
+    } else {
+      setError(result.message);
+      setPin('');
+    }
+  };
 
   const handleNumpad = (val) => {
     if (val === 'del') {
@@ -18,7 +32,7 @@ export default function StaffLoginPage() {
       const newPin = pin + val;
       setPin(newPin);
       if (newPin.length === 4) {
-        setTimeout(() => navigate('/staff'), 300);
+        submitLogin(newPin);
       }
     }
   };
@@ -56,6 +70,8 @@ export default function StaffLoginPage() {
             />
           </div>
 
+          {error && <div className="mb-4 p-3 bg-red-500/20 text-red-100 rounded-lg text-sm font-bold text-center border border-red-500/50">{error}</div>}
+
           {/* PIN dots */}
           <div className="flex justify-center gap-4 mb-8">
             {[0, 1, 2, 3].map(i => (
@@ -92,8 +108,9 @@ export default function StaffLoginPage() {
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/staff')}
-            className="w-full bg-primary text-white py-4 rounded-lg font-bold mt-6 hover:bg-primary-dark transition-all"
+            onClick={() => pin.length === 4 && submitLogin(pin)}
+            className="w-full bg-primary text-white py-4 rounded-lg font-bold mt-6 hover:bg-primary-dark transition-all disabled:opacity-50"
+            disabled={pin.length < 4}
           >
             دخول
           </motion.button>

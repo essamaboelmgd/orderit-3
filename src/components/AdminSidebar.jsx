@@ -1,19 +1,26 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Logo from './Logo';
 
-const navItems = [
-  { to: '/admin', icon: 'dashboard', label: 'الرئيسية', exact: true },
-  { to: '/admin/menu', icon: 'restaurant_menu', label: 'المنيو' },
-  { to: '/admin/orders', icon: 'receipt_long', label: 'الطلبات' },
-  { to: '/admin/tables', icon: 'table_restaurant', label: 'الطاولات' },
-  { to: '/admin/staff', icon: 'person', label: 'الموظفين' },
+const allNavItems = [
+  { to: '/admin', icon: 'dashboard', label: 'الرئيسية', exact: true, roles: ['admin'] },
+  { to: '/admin/menu', icon: 'restaurant_menu', label: 'المنيو', roles: ['admin'] },
+  { to: '/admin/orders', icon: 'receipt_long', label: 'الطلبات', roles: ['admin', 'staff'] },
+  { to: '/admin/tables', icon: 'table_restaurant', label: 'الطاولات', roles: ['admin'] },
+  { to: '/admin/staff', icon: 'person', label: 'الموظفين', roles: ['admin'] },
+  { to: '/admin/settings', icon: 'settings', label: 'الإعدادات', roles: ['admin'] },
 ];
 
 export default function AdminSidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const navItems = allNavItems.filter(item => item.roles.includes(user?.role || 'admin'));
+
   return (
     <>
       <aside className="fixed right-0 top-0 h-full flex flex-col p-4 z-40 overflow-y-auto bg-primary text-white w-64 border-l border-neutral-200 hidden md:flex">
-        <div className="flex flex-col gap-1 mb-8 px-4">
-          <span className="text-xl font-bold text-white tracking-tighter">OrderIt Admin</span>
+        <div className="flex flex-col gap-1 mb-8 px-4 mt-2">
+          <Logo size="lg" />
           <span className="text-xs font-medium text-white/70 uppercase tracking-widest">Premium Management</span>
         </div>
         <nav className="flex flex-col gap-2 flex-grow">
@@ -40,10 +47,10 @@ export default function AdminSidebar() {
             <span className="material-symbols-outlined">help</span>
             <span>Support</span>
           </a>
-          <a href="#" className="flex items-center gap-3 text-white/70 px-4 py-3 hover:bg-white/5 rounded-lg transition-all">
+          <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center w-full gap-3 text-white/70 px-4 py-3 hover:bg-white/5 hover:text-white rounded-lg transition-all">
             <span className="material-symbols-outlined">logout</span>
             <span>Logout</span>
-          </a>
+          </button>
         </div>
       </aside>
 
