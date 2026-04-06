@@ -1,0 +1,59 @@
+import { createContext, useContext, useState } from 'react';
+
+const CartContext = createContext(null);
+
+export function CartProvider({ children }) {
+  const [items, setItems] = useState([]);
+  const [tableNumber, setTableNumber] = useState(1);
+  const [restaurantId, setRestaurantId] = useState('sakura-sushi');
+
+  const addItem = (item) => {
+    setItems(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
+      }
+      return [...prev, { ...item, qty: 1 }];
+    });
+  };
+
+  const removeItem = (itemId) => {
+    setItems(prev => prev.filter(i => i.id !== itemId));
+  };
+
+  const updateQty = (itemId, qty) => {
+    if (qty <= 0) {
+      removeItem(itemId);
+      return;
+    }
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, qty } : i));
+  };
+
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  const setTable = (num) => {
+    setTableNumber(Number(num) || 1);
+  };
+
+  const totalItems = items.reduce((sum, i) => sum + i.qty, 0);
+  const totalPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+  return (
+    <CartContext.Provider value={{
+      items, tableNumber, restaurantId,
+      addItem, removeItem, updateQty, clearCart,
+      setTable, setRestaurantId,
+      totalItems, totalPrice,
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error('useCart must be used within CartProvider');
+  return ctx;
+}
