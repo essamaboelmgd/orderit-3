@@ -80,9 +80,9 @@ export const initialOrders = [
 ];
 
 export const staff = [
-  { id: 1, name: 'أحمد سالم', phone: '0501234567', pin: '4821', active: true },
-  { id: 2, name: 'فاطمة محمد', phone: '0557891234', pin: '7362', active: true },
-  { id: 3, name: 'خالد عمر', phone: '0533456789', pin: '1958', active: false },
+  { id: 1, name: 'أحمد سالم', phone: '01012345678', pin: '4821', active: true },
+  { id: 2, name: 'فاطمة محمد', phone: '01123456789', pin: '7362', active: true },
+  { id: 3, name: 'خالد عمر', phone: '01234567890', pin: '1958', active: false },
 ];
 
 export const superAdminRestaurants = [

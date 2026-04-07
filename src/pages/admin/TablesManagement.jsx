@@ -4,37 +4,47 @@ import PageTransition from '../../components/PageTransition';
 import AdminSidebar from '../../components/AdminSidebar';
 import { tables } from '../../data/dummyData';
 
-function QRPlaceholder({ tableNumber, size = 80 }) {
-  const s = size;
-  const c = s / 2;
-  const r = s / 6;
-  return (
-    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} className="mx-auto">
-      <rect width={s} height={s} fill="white" />
-      {/* QR corner squares */}
-      {[[4, 4], [s - 4 - r * 2, 4], [4, s - 4 - r * 2]].map(([x, y], i) => (
-        <g key={i}>
-          <rect x={x} y={y} width={r * 2} height={r * 2} fill="none" stroke="#1A1A1A" strokeWidth="2" />
-          <rect x={x + 3} y={y + 3} width={r * 2 - 6} height={r * 2 - 6} fill="#1A1A1A" />
-        </g>
-      ))}
-      {/* QR data dots */}
-      {Array.from({ length: 20 }, (_, i) => (
-        <rect
-          key={i}
-          x={c - 8 + (i % 5) * 4}
-          y={c - 8 + Math.floor(i / 5) * 4}
-          width={3}
-          height={3}
-          fill={Math.random() > 0.4 ? '#1A1A1A' : 'white'}
-        />
-      ))}
-      <text x={c} y={s - 2} textAnchor="middle" fontSize="6" fill="#666">{tableNumber}</text>
-    </svg>
-  );
-}
+import { QRCodeSVG } from 'qrcode.react';
 
 function QRModal({ table, onClose }) {
+  const handleDownload = () => {
+    const svg = document.getElementById(`qr-${table.id}`);
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.download = `table-${table.number}-qr.png`;
+      a.href = url;
+      a.click();
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    const svg = document.getElementById(`qr-${table.id}`);
+    const svgData = new XMLSerializer().serializeToString(svg);
+    printWindow.document.write(`
+      <html>
+        <head><title>Print QR Code - Table ${table.number}</title></head>
+        <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;">
+          <h1 style="font-family:sans-serif;">طاولة رقم ${table.number}</h1>
+          <div style="margin: 20px;">${svgData}</div>
+          <script>window.print();window.close();</script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -52,14 +62,14 @@ function QRModal({ table, onClose }) {
       >
         <h3 className="font-black text-xl mb-2">الطاولة رقم {table.number}</h3>
         <p className="text-secondary text-sm mb-6">{table.qrUrl}</p>
-        <div className="border-2 border-gray-100 rounded-xl p-4 mb-6">
-          <QRPlaceholder tableNumber={table.number} size={180} />
+        <div className="border-2 border-gray-100 rounded-xl p-4 mb-6 bg-white shrink-0">
+          <QRCodeSVG id={`qr-${table.id}`} value={table.qrUrl} size={180} level="M" />
         </div>
         <div className="flex gap-3">
-          <button className="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-dark transition-all text-sm">
+          <button onClick={handleDownload} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-dark transition-all text-sm">
             تحميل QR
           </button>
-          <button className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm">
+          <button onClick={handlePrint} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm">
             طباعة
           </button>
         </div>
@@ -112,8 +122,8 @@ export default function TablesManagement() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <span className="font-black text-2xl text-primary">{table.number}</span>
                   </div>
-                  <div className="mb-3">
-                    <QRPlaceholder tableNumber={table.number} size={60} />
+                  <div className="mb-3 bg-white p-2 rounded-lg inline-block">
+                    <QRCodeSVG value={table.qrUrl} size={60} level="M" />
                   </div>
                   <div className="flex gap-2">
                     <button

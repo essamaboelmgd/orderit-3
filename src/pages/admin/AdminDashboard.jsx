@@ -6,10 +6,10 @@ import AdminSidebar from '../../components/AdminSidebar';
 import Logo from '../../components/Logo';
 
 const recentOrders = [
-  { id: '#10294', table: 'طاولة 08', items: 'برجر لحم، بطاطس مقلية، بيبسي...', total: '145 ر.س', status: 'جديد' },
-  { id: '#10293', table: 'طاولة 12', items: 'بيتزا مارجريتا، سلطة سيزر...', total: '88 ر.س', status: 'قيد التحضير' },
-  { id: '#10292', table: 'طاولة 03', items: 'أوزي لحم، زبادي، ماء...', total: '210 ر.س', status: 'جاهز' },
-  { id: '#10291', table: 'طاولة 05', items: 'باستا فيتوشيني، تيراميسو...', total: '112 ر.س', status: 'قيد التحضير' },
+  { id: '#10294', table: 'طاولة 08', items: 'برجر لحم، بطاطس مقلية، بيبسي...', total: '145 ج.م', status: 'جديد' },
+  { id: '#10293', table: 'طاولة 12', items: 'بيتزا مارجريتا، سلطة سيزر...', total: '88 ج.م', status: 'قيد التحضير' },
+  { id: '#10292', table: 'طاولة 03', items: 'أوزي لحم، زبادي، ماء...', total: '210 ج.م', status: 'جاهز' },
+  { id: '#10291', table: 'طاولة 05', items: 'باستا فيتوشيني، تيراميسو...', total: '112 ج.م', status: 'قيد التحضير' },
 ];
 
 const statusStyles = {
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-neutral-500 text-sm font-medium">إجمالي الإيرادات</h3>
-                  <p className="text-3xl font-black text-on-surface">4,250 <span className="text-sm font-medium text-secondary">ر.س</span></p>
+                  <p className="text-3xl font-black text-on-surface">4,250 <span className="text-sm font-medium text-secondary">ج.م</span></p>
                 </div>
               </div>
 

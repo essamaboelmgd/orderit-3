@@ -27,7 +27,7 @@ export default function PlatformSettings() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold mb-2 text-on-surface">رسوم الاشتراك الشهري (ر.س)</label>
+                  <label className="block text-sm font-bold mb-2 text-on-surface">رسوم الاشتراك الشهري (ج.م)</label>
                   <input type="number" defaultValue="299" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
                 </div>
                 <div>

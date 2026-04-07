@@ -249,7 +249,7 @@ export default function StaffManagement() {
                 </div>
                 <div className="space-y-2 text-right">
                   <label className="block text-sm font-bold text-secondary">رقم الهاتف</label>
-                  <input className="w-full bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none text-left" dir="ltr" placeholder="05XXXXXXXX" type="tel" />
+                  <input className="w-full bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none text-left" dir="ltr" placeholder="1xxxxxxxxx" type="tel" />
                 </div>
                 <div className="space-y-2 text-right">
                   <label className="block text-sm font-bold text-secondary">رمز PIN (٤ أرقام)</label>

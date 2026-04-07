@@ -12,8 +12,8 @@ const fallbackImages = [
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAIUboAE5DjmuYHVSrcFC6H4AgW_Wv_KEWpGwIB6uoWojI8kfqOgk0kL3tjZLssZ2BWQ6OaNPohdc7K4C85vQ5prM332mk1kQeo0i1mSE5gPPawg4XZ7kNmw5ZhssU7O6ptEdHBc7dN2G6OZfAqGYUXU_Vi7AVxT1CU42fcQ2Ly-h_XrhcFjCuKfbX-2nHlol9C8clbpFSSxqUADPK1z1ZwjUkmhdiWazujQUnXA3SiCbj3kNnY9BUqWgm0SgW4PJFg5vyRgL_ihLA4"
 ];
 
-function ItemModal({ item, onClose, onSave }) {
-  const [form, setForm] = useState(item || { name: '', nameEn: '', description: '', price: '', categoryId: categories[0].id, available: true });
+function ItemModal({ item, onClose, onSave, categories }) {
+  const [form, setForm] = useState(item || { name: '', description: '', price: '', categoryId: categories[0]?.id || '', available: true });
 
   return (
     <motion.div
@@ -78,19 +78,9 @@ function ItemModal({ item, onClose, onSave }) {
                 placeholder="مثال: حمص بيروتي"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">Name (English)</label>
-              <input
-                type="text"
-                value={form.nameEn || ''}
-                onChange={e => setForm(p => ({ ...p, nameEn: e.target.value }))}
-                className="w-full bg-surface-container-low border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 font-['Inter']"
-                dir="ltr"
-                placeholder="Ex: Hummus Beiruti"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">السعر (ر.س)</label>
+              <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">السعر (ج.م)</label>
               <input
                 type="number"
                 value={form.price}
@@ -121,15 +111,104 @@ function ItemModal({ item, onClose, onSave }) {
   );
 }
 
+function CategoryModal({ category, onClose, onSave }) {
+  const [form, setForm] = useState(category || { name: '', icon: '🍽️' });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-surface rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+        dir="rtl"
+      >
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-neutral-100">
+          <h3 className="text-xl font-bold font-headline">{category ? 'تعديل الفئة' : 'إضافة فئة جديدة'}</h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-on-surface">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">اسم الفئة</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              className="w-full bg-surface-container-low border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20"
+              placeholder="مثال: مقبلات"
+              autoFocus
+            />
+          </div>
+        </div>
+        <div className="px-6 py-4 bg-neutral-50 flex flex-row-reverse gap-3">
+          <button onClick={() => { onSave(form); onClose(); }} className="bg-primary text-on-primary px-8 py-2.5 rounded-lg font-bold text-sm shadow-lg active:scale-95 transition-all">حفظ</button>
+          <button onClick={onClose} className="text-neutral-500 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-neutral-200 transition-all">إلغاء</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function ConfirmModal({ message, onConfirm, onClose }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-surface rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+        dir="rtl"
+      >
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-neutral-100">
+          <h3 className="text-xl font-bold font-headline text-error">تأكيد الحذف</h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-on-surface">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-3xl">delete_forever</span>
+          </div>
+          <p className="text-sm font-bold text-on-surface leading-relaxed">{message}</p>
+        </div>
+        <div className="px-6 py-4 bg-neutral-50 flex flex-row-reverse gap-3">
+          <button onClick={() => { onConfirm(); onClose(); }} className="bg-error text-white px-8 py-2.5 rounded-lg font-bold text-sm shadow-lg active:scale-95 transition-all">حذف نهائي</button>
+          <button onClick={onClose} className="text-neutral-500 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-neutral-200 transition-all">إلغاء</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function MenuManagement() {
   const navigate = useNavigate();
+  const [categoryList, setCategoryList] = useState(categories);
   const [items, setItems] = useState(menuItems);
   const [activeCat, setActiveCat] = useState(categories[0].id);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [showCatModal, setShowCatModal] = useState(false);
+  const [editCat, setEditCat] = useState(null);
+  const [deleteCatId, setDeleteCatId] = useState(null);
 
   const filtered = items.filter(i => i.categoryId === activeCat);
-  const currentCategory = categories.find(c => c.id === activeCat);
+  const currentCategory = categoryList.find(c => c.id === activeCat);
 
   const toggleAvailability = (item) => {
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, available: !i.available } : i));
@@ -142,6 +221,33 @@ export default function MenuManagement() {
       setItems(prev => [...prev, { ...form, id: Date.now(), price: Number(form.price) }]);
     }
     setEditItem(null);
+  };
+
+  const handleSaveCategory = (form) => {
+    if (form.name && form.name.trim()) {
+      if (editCat) {
+        setCategoryList(prev => prev.map(c => c.id === editCat.id ? { ...c, name: form.name.trim() } : c));
+      } else {
+        const newCat = { id: 'kat_' + Date.now(), name: form.name.trim(), icon: '🍽️' };
+        setCategoryList(prev => [...prev, newCat]);
+        setActiveCat(newCat.id);
+      }
+    }
+  };
+
+  const handleDeleteCategory = (catId) => {
+    setDeleteCatId(catId);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (!deleteCatId) return;
+    setCategoryList(prev => {
+      const next = prev.filter(c => c.id !== deleteCatId);
+      if (activeCat === deleteCatId) setActiveCat(next[0]?.id || null);
+      return next;
+    });
+    setItems(prev => prev.filter(i => i.categoryId !== deleteCatId));
+    setDeleteCatId(null);
   };
 
   return (
@@ -195,12 +301,12 @@ export default function MenuManagement() {
                 <div className="bg-surface-container-low rounded-xl p-6 shadow-sm border-r-4 border-primary">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold font-headline">الأصناف (Categories)</h3>
-                    <button className="text-primary hover:bg-primary-fixed p-1 rounded-lg transition-all">
+                    <button onClick={() => { setEditCat(null); setShowCatModal(true); }} className="text-primary hover:bg-primary-fixed p-1 rounded-lg transition-all">
                       <span className="material-symbols-outlined">add_circle</span>
                     </button>
                   </div>
                   <div className="space-y-3">
-                    {categories.map(cat => {
+                    {categoryList.map(cat => {
                       const isActive = activeCat === cat.id;
                       return (
                         <div
@@ -219,8 +325,8 @@ export default function MenuManagement() {
                             </div>
                           </div>
                           <div className={`flex items-center gap-1 transition-opacity ${isActive ? '' : 'opacity-0 group-hover:opacity-100'}`}>
-                            <button className="p-1.5 hover:bg-surface-container text-neutral-500 rounded-md"><span className="material-symbols-outlined text-lg">edit</span></button>
-                            <button className="p-1.5 hover:bg-error-container text-error rounded-md"><span className="material-symbols-outlined text-lg">delete</span></button>
+                            <button onClick={(e) => { e.stopPropagation(); setEditCat(cat); setShowCatModal(true); }} className="p-1.5 hover:bg-surface-container text-neutral-500 rounded-md"><span className="material-symbols-outlined text-lg">edit</span></button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }} className="p-1.5 hover:bg-error-container text-error rounded-md"><span className="material-symbols-outlined text-lg">delete</span></button>
                           </div>
                         </div>
                       );
@@ -264,7 +370,7 @@ export default function MenuManagement() {
                           )}
 
                           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-md shadow-sm pointer-events-none">
-                            <span className="text-primary font-black text-sm">{typeof item.price === 'number' ? item.price.toFixed(2) : item.price} ر.س</span>
+                            <span className="text-primary font-black text-sm">{typeof item.price === 'number' ? item.price.toFixed(2) : item.price} ج.م</span>
                           </div>
                           <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => { setEditItem(item); setShowModal(true); }} className="bg-white p-2 rounded-full shadow-lg text-neutral-600 hover:text-primary"><span className="material-symbols-outlined text-lg">edit</span></button>
@@ -275,7 +381,6 @@ export default function MenuManagement() {
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <h4 className="font-bold text-lg leading-none">{item.name}</h4>
-                              <p className="text-xs text-neutral-400 mt-1 uppercase tracking-wider font-label">{item.nameEn || item.name}</p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input type="checkbox" className="sr-only peer" checked={item.available || false} onChange={() => toggleAvailability(item)} />
@@ -319,8 +424,23 @@ export default function MenuManagement() {
           {showModal && (
             <ItemModal
               item={editItem}
+              categories={categoryList}
               onClose={() => { setShowModal(false); setEditItem(null); }}
               onSave={handleSave}
+            />
+          )}
+          {showCatModal && (
+            <CategoryModal
+              category={editCat}
+              onClose={() => { setShowCatModal(false); setEditCat(null); }}
+              onSave={handleSaveCategory}
+            />
+          )}
+          {deleteCatId && (
+            <ConfirmModal
+              message="هل أنت متأكد من حذف هذه الفئة؟ سيتم حذف جميع الأصناف المندرجة تحتها بشكل نهائي."
+              onClose={() => setDeleteCatId(null)}
+              onConfirm={confirmDeleteCategory}
             />
           )}
         </AnimatePresence>

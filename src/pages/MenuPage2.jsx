@@ -31,7 +31,7 @@ function ItemCard({ item }) {
           <p className="text-zinc-500 text-xs leading-[1.65] line-clamp-2">{item.description}</p>
         </div>
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-primary font-black text-lg">{item.price.toFixed(2)} ر.س</span>
+          <span className="text-primary font-black text-lg">{item.price.toFixed(2)} ج.م</span>
           <AnimatePresence mode="wait">
             {qty === 0 ? (
               <motion.button
@@ -58,12 +58,12 @@ function ItemCard({ item }) {
                   <span className="text-white font-bold w-4 text-center">{qty}</span>
                   <button onClick={() => addItem(item)} className="text-primary flex items-center justify-center h-full w-4"><span className="material-symbols-outlined text-sm">add</span></button>
                 </div>
-                <input 
-                  type="text" 
-                  placeholder="ملاحظة للمطبخ..." 
+                <input
+                  type="text"
+                  placeholder="ملاحظة للمطبخ..."
                   value={cartItem.note || ''}
                   onChange={(e) => updateNote(item.id, e.target.value)}
-                  className="w-[120px] text-[10px] bg-[#222] border border-white/5 rounded-lg p-1.5 focus:border-primary outline-none text-right placeholder-zinc-500 text-white" 
+                  className="w-[120px] text-[10px] bg-[#222] border border-white/5 rounded-lg p-1.5 focus:border-primary outline-none text-right placeholder-zinc-500 text-white"
                 />
               </motion.div>
             )}
@@ -91,7 +91,7 @@ export default function MenuPage2() {
     <PageTransition>
       <div className="bg-[#1c1b1b] text-white selection:bg-primary selection:text-white antialiased rtl-layout font-sans min-h-screen" dir="rtl">
         <main className="max-w-2xl mx-auto relative pb-32">
-          
+
           {/* Hero Section */}
           <header className="relative h-72 w-full overflow-hidden">
             <img className="absolute inset-0 w-full h-full object-cover" alt="Restaurant Background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqIPbqt29G5PNasWVZ8EfUV83e_PhJHI01EX7UvRfnVNHoSJ9QM32bKIeSOpLz-73JwvuI70L15d9bFypIApofmEZgvKc9tZ8W4ACknoX8kLsg9Nmw4awBeBMuEbK0PlpCQBAMJX6lf1YHJq4zmxCJGU4JHtNWGejeH1ul1kiv-nbkkyKDvdDneEqmVYFIQzOJUxmOTIfDkoxRk24AlUlHOJQnYWYZ7s5HgXPfgEY-OXldy-bzF7UFyLxzrys01zJOICR4svUoqa7W" />
@@ -115,11 +115,10 @@ export default function MenuPage2() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
-                    activeCategory === cat.id 
-                      ? 'bg-primary text-white shadow-[0_4px_12px_rgba(187,0,20,0.3)]' 
+                  className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${activeCategory === cat.id
+                      ? 'bg-primary text-white shadow-[0_4px_12px_rgba(187,0,20,0.3)]'
                       : 'bg-inverse-surface text-zinc-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </button>
@@ -139,7 +138,7 @@ export default function MenuPage2() {
                     <ItemCard item={item} />
                   </motion.div>
                 ))}
-                
+
                 {filtered.length === 0 && (
                   <div className="text-center py-12 text-zinc-500">
                     لا توجد أصناف في هذا القسم حالياً
@@ -152,7 +151,7 @@ export default function MenuPage2() {
           {/* Floating Cart Bar */}
           <AnimatePresence>
             {totalItems > 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ y: 200, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 200, opacity: 0 }}
@@ -165,7 +164,7 @@ export default function MenuPage2() {
                     </div>
                     <div>
                       <div className="text-[10px] uppercase font-black tracking-widest opacity-80">سلة الطلبات</div>
-                      <div className="font-bold">{totalItems} أصناف • {totalPrice.toFixed(2)} ر.س</div>
+                      <div className="font-bold">{totalItems} أصناف • {totalPrice.toFixed(2)} ج.م</div>
                     </div>
                   </div>
                   <button className="bg-white text-primary px-6 py-2 rounded-xl font-black text-sm active:scale-95 transition-transform">
@@ -177,17 +176,17 @@ export default function MenuPage2() {
           </AnimatePresence>
 
         </main>
-        
+
         {/* Footer - Simple & Focused */}
-        <footer className="bg-[#111111] py-12 px-8 text-center border-t border-white/5">
+        {/* <footer className="bg-[#111111] py-12 px-8 text-center border-t border-white/5">
           <p className="text-zinc-600 text-xs mb-4 leading-loose">© ٢٠٢٤ Editorial Vitality. جميع الحقوق محفوظة لـ فيتاليتي إيتس.<br/>خدمة مدعومة بتقنيات Kinetic Logistics.</p>
           <div className="flex justify-center gap-6 text-zinc-500 text-xs font-bold">
             <a className="hover:text-primary transition-colors" href="#">سياسة الخصوصية</a>
             <a className="hover:text-primary transition-colors" href="#">شروط الخدمة</a>
             <a className="hover:text-primary transition-colors" href="#">الدعم الفني</a>
           </div>
-        </footer>
-        
+        </footer> */}
+
       </div>
     </PageTransition>
   );

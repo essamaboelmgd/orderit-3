@@ -18,23 +18,34 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const login = (credentials) => {
-    // Demo credentials map correctly based on user instructions
-    if (credentials.email === 'super@orderit.com' && credentials.password === 'super123') {
+    // Demo credentials — phone-based login (Egyptian numbers)
+    if (credentials.phone === '01000000000' && credentials.password === 'super123') {
       const u = { id: 'super1', name: 'SuperAdmin', role: 'superadmin', restaurantId: null, restaurantName: null };
       setUser(u);
       return { success: true, role: 'superadmin' };
     }
-    if (credentials.email === 'admin@sakura.com' && credentials.password === 'admin123') {
-      const u = { id: 'admin1', name: 'Sakura Manager', role: 'admin', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
+    if (credentials.phone === '01012345678' && credentials.password === 'admin123') {
+      const u = { id: 'admin1', name: 'مدير الساكورا', role: 'admin', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
+      setUser(u);
+      return { success: true, role: 'admin' };
+    }
+    // Fallback: also accept legacy email field passed as phone for compatibility
+    if ((credentials.email === '01000000000' || credentials.phone === '01000000000') && credentials.password === 'super123') {
+      const u = { id: 'super1', name: 'SuperAdmin', role: 'superadmin', restaurantId: null, restaurantName: null };
+      setUser(u);
+      return { success: true, role: 'superadmin' };
+    }
+    if ((credentials.email === '01012345678' || credentials.phone === '01012345678') && credentials.password === 'admin123') {
+      const u = { id: 'admin1', name: 'مدير الساكورا', role: 'admin', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
       setUser(u);
       return { success: true, role: 'admin' };
     }
     if (credentials.pin === '1234') {
-      const u = { id: 'staff1', name: 'Staff Member', role: 'staff', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
+      const u = { id: 'staff1', name: 'موظف المطعم', role: 'staff', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
       setUser(u);
       return { success: true, role: 'staff' };
     }
-    return { success: false, message: 'Invalid credentials. Please try again.' };
+    return { success: false, message: 'رقم الهاتف أو كلمة المرور غير صحيحة' };
   };
 
   const logout = () => {
