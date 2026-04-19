@@ -30,10 +30,14 @@ import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import RestaurantsList from './pages/superadmin/RestaurantsList';
 import PlatformSettings from './pages/superadmin/PlatformSettings';
 
+import Navbar from './components/Navbar';
+
 export default function App() {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait">
+    <>
+      <Navbar />
+      <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -55,5 +59,6 @@ export default function App() {
         <Route path="/superadmin/settings" element={<ProtectedRoute allowedRoles={['superadmin']}><PlatformSettings /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
+    </>
   );
 }

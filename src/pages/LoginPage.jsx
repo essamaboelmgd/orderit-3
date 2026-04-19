@@ -42,27 +42,7 @@ export default function LoginPage() {
     <PageTransition>
       <div className="bg-background text-on-surface min-h-screen flex flex-col antialiased" dir="rtl">
 
-        {/* ── Navbar — same as landing page ── */}
-        <motion.nav
-          className="fixed top-0 w-full z-50 glass-nav shadow-sm"
-          initial={{ y: -70, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex items-center justify-between px-6 py-4 w-full max-w-7xl mx-auto">
-            <Logo size="xl" lightBg />
-            <div className="hidden md:flex items-center gap-6 text-sm">
-              <a href="#" className="text-neutral-500 hover:text-primary transition-colors font-medium">تواصل مع الدعم</a>
-              <a href="#" className="text-neutral-500 hover:text-primary transition-colors font-medium">مركز المساعدة</a>
-            </div>
-            <Link
-              to="/register"
-              className="bg-primary text-on-primary px-5 py-2 rounded-lg font-bold text-sm shadow hover:bg-primary-container transition-all"
-            >
-              سجل مطعمك
-            </Link>
-          </div>
-        </motion.nav>
+        {/* ── Navbar removed as per user request ── */}
 
         {/* ── Main ── */}
         <main className="flex-grow flex items-center justify-center pt-28 pb-16 px-4 relative overflow-hidden">

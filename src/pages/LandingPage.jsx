@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import Logo from "../components/Logo";
@@ -9,16 +9,13 @@ const fadeUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0 },
 };
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
+
 const stagger = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-/* ─── Helper: fires once element enters viewport ─── */
+/* ─── Helper Components ─── */
 function AnimateOnScroll({ children, className, variants = fadeUp, delay = 0, duration = 0.6 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px 0px" });
@@ -36,7 +33,6 @@ function AnimateOnScroll({ children, className, variants = fadeUp, delay = 0, du
   );
 }
 
-/* ─── Stagger wrapper ─── */
 function StaggerOnScroll({ children, className }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px 0px" });
@@ -53,182 +49,209 @@ function StaggerOnScroll({ children, className }) {
   );
 }
 
+/* ─── Icons (SVG) ─── */
+const CheckIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const PlayIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <polygon points="5 3 19 12 5 21 5 3" />
+  </svg>
+);
+
 export default function LandingPage() {
   const navigate = useNavigate();
-
-  /* Parallax for hero bg blobs */
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const blobY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const yParallax = useTransform(scrollYProgress, [0, 1], [0, 150]);
+
+  // Food images for floating effect
+  const foodImages = [
+    { src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop&auto=format&q=80', className: 'top-10 -right-4 md:right-10 w-24 h-24 md:w-32 md:h-32 rotate-[-12deg]' },
+    { src: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop&auto=format&q=80', className: 'top-40 -right-8 md:-right-20 w-20 h-20 md:w-28 md:h-28 rotate-[15deg]' },
+    { src: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop&auto=format&q=80', className: 'bottom-20 right-0 w-24 h-24 rotate-[-8deg]' },
+    { src: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop&auto=format&q=80', className: 'top-20 -left-4 md:left-10 w-28 h-28 rotate-[10deg]' },
+    { src: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200&h=200&fit=crop&auto=format&q=80', className: 'bottom-10 left-0 w-20 h-20 rotate-[-15deg]' },
+  ];
 
   return (
     <PageTransition>
-      <div className="bg-background text-on-surface antialiased overflow-x-hidden min-h-screen" dir="rtl">
-
-        {/* ── TopNavBar ── */}
-        <motion.nav
-          className="fixed top-0 w-full z-50 glass-nav shadow-sm"
-          initial={{ y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex flex-row-reverse items-center justify-between px-6 py-4 w-full max-w-7xl mx-auto">
-            <div className="flex items-center gap-4">
-              <Logo size="xl" />
-            </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a className="text-primary font-bold border-b-2 border-primary pb-1" href="#home">الرئيسية</a>
-              <a className="text-neutral-600 hover:text-primary transition-colors" href="#how">كيف يعمل</a>
-              <a className="text-neutral-600 hover:text-primary transition-colors" href="#restaurants">للمطاعم</a>
-              <a className="text-neutral-600 hover:text-primary transition-colors" href="#features">المميزات</a>
-              <a className="text-neutral-600 hover:text-primary transition-colors" href="#contact">تواصل معنا</a>
-            </div>
-            <div className="flex items-center gap-3">
-              <motion.button
-                onClick={() => navigate('/register')}
-                className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold shadow-lg hover:bg-primary-container transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                ابدأ مجاناً
-              </motion.button>
-            </div>
-          </div>
-        </motion.nav>
+      <div className="bg-[#FFF8F9] text-[#1A1A1A] antialiased overflow-x-hidden min-h-screen font-tajawal selection:bg-primary/20" dir="rtl">
+        
+        {/* ── Navbar ── */}
+        {/* Global Navbar in App.jsx handles this now */}
 
         {/* ── Hero Section ── */}
-        <header id="home" ref={heroRef} className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
-          {/* Parallax background blobs */}
-          <motion.div
-            style={{ y: blobY }}
-            className="absolute inset-0 pointer-events-none"
-          >
-            <div className="absolute top-10 right-[-10%] w-[600px] h-[600px] bg-primary/8 rounded-full blur-3xl" />
-            <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-tertiary/6 rounded-full blur-3xl" />
-          </motion.div>
+        <header id="home" ref={heroRef} className="relative pt-40 pb-20 md:pt-56 md:pb-32 overflow-hidden">
+          {/* Decorative Gradients */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
 
-          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-            {/* Hero Text */}
+          <div className="max-w-[1440px] mx-auto px-6 md:px-12 grid lg:grid-cols-2 gap-16 items-center">
+            {/* Text Column */}
             <motion.div
-              className="z-10"
+              className="z-10 order-2 lg:order-1 text-center lg:text-right"
               initial="hidden"
               animate="visible"
               variants={stagger}
             >
               <motion.h1
                 variants={fadeUp}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="text-5xl md:text-7xl font-black text-on-surface leading-tight mb-6"
+                className="text-5xl md:text-7xl font-black leading-[1.1] mb-8"
               >
-                اجعل تجربة الطلب في مطعمك{" "}
-                <motion.span
-                  className="text-primary inline-block"
-                  animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                >
-                  لا تُنسى
-                </motion.span>
+                اجعل تجربة الطلب <br />
+                في مطعمك <span className="text-primary">لا تُنسى</span>
               </motion.h1>
               <motion.p
                 variants={fadeUp}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="text-lg md:text-xl text-secondary leading-relaxed mb-10 max-w-lg"
+                className="text-xl text-secondary leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0"
               >
-                حول قائمتك الورقية إلى تجربة رقمية تفاعلية. نظام متكامل لإدارة الطلبات، الطاولات، وتحليل المبيعات بكل سهولة واحترافية.
+                حول قائمتك الورقية إلى تجربة رقمية تفاعلية بلمسة زر. نظام متكامل لإدارة الطلبات، دفع إلكتروني، وتحليلات دقيقة لنمو مطعمك.
               </motion.p>
               <motion.div
                 variants={fadeUp}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="flex flex-wrap gap-4"
+                className="flex flex-wrap justify-center lg:justify-start gap-4 mb-12"
               >
                 <motion.button
                   onClick={() => navigate('/register')}
-                  className="bg-primary text-on-primary px-8 py-4 rounded-lg text-lg font-bold shadow-xl transition-all"
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
-                  whileTap={{ scale: 0.97 }}
+                  className="bg-primary text-white px-10 py-5 rounded-full text-lg font-black shadow-2xl hover:shadow-primary/30 transition-all"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   ابدأ الآن مجاناً
                 </motion.button>
                 <motion.button
-                  onClick={() => navigate('/menu')}
-                  className="flex items-center gap-2 bg-surface-container-lowest text-on-surface px-8 py-4 rounded-lg text-lg font-bold shadow-sm border border-outline-variant/10 hover:bg-surface-container-low transition-all"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  className="flex items-center gap-3 bg-white text-[#1A1A1A] px-10 py-5 rounded-full text-lg font-black shadow-xl border border-outline-variant/10"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <span className="material-symbols-outlined">play_circle</span>
-                  شاهد كيف يعمل
+                  <PlayIcon />
+                  شاهد العرض
                 </motion.button>
               </motion.div>
+
+              {/* Stats Bar */}
+              <motion.div 
+                variants={fadeUp}
+                className="flex justify-center lg:justify-start gap-12 pt-8 border-t border-outline-variant/20"
+              >
+                <div>
+                  <div className="text-3xl font-black">500<span className="text-primary">+</span></div>
+                  <div className="text-sm font-bold text-secondary">مطعم وكافيه</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-black">1M<span className="text-primary">+</span></div>
+                  <div className="text-sm font-bold text-secondary">طلب ناجح</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-black">4.9<span className="text-primary">★</span></div>
+                  <div className="text-sm font-bold text-secondary">تقييم العملاء</div>
+                </div>
+              </motion.div>
             </motion.div>
 
-            {/* Hero Image */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 60 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-              <motion.div
-                className="relative z-10 bg-surface-container-lowest p-4 rounded-[2.5rem] shadow-2xl border border-outline-variant/5 transform md:rotate-3"
-                animate={{ y: [0, -12, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            {/* Visual Column (Phone + Food) */}
+            <div className="relative order-1 lg:order-2 h-[450px] md:h-[600px] flex items-center justify-center">
+              {/* Phone Mockup Wrapper */}
+              <motion.div 
+                className="relative z-20 w-[240px] md:w-[280px]"
+                initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                animate={{ opacity: 1, scale: 1, rotate: 3 }}
+                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                style={{ y: yParallax }}
               >
-                <img
-                  alt="OrderIt App Interface"
-                  className="rounded-[2rem] w-full shadow-inner"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoyBAPP5k2h1FH-TR5sqvEzq-11bzCC3OYDk8fDdD_ihCkBFSq3wwGJvuajIKJuN5sz5lOHUglnVKoIOOFKivuX8aIvK1JMjSz4uh68j3pBv520RAnFwqF3jPpAeTKaHp5fOX0LV0bcdwoJcvOHmSlUlgMW1BsWhCkTiRQ8jzQ-ml-_CBwQ5gyR4FKuWr7D-vF8-uR8yG8vK_VQtvdkyacaV7qM5vAAljQ9-k31rKIHsXTQTz2Fu5x7d_Cj5c5f4A8B7lskHiDp47O"
-                />
-              </motion.div>
-
-              {/* Floating order notification */}
-              <motion.div
-                className="absolute z-20 -bottom-10 -right-10 bg-white p-6 rounded-2xl shadow-xl border border-outline-variant/10 hidden lg:block"
-                initial={{ opacity: 0, scale: 0.7, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <motion.div
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <motion.div
-                      className="w-3 h-3 bg-tertiary-container rounded-full"
-                      animate={{ scale: [1, 1.4, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                    <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">طلب جديد</span>
+                <div className="bg-[#1A1A1A] rounded-[3rem] p-2.5 shadow-[0_45px_90px_-15px_rgba(0,0,0,0.3)]">
+                  <div className="bg-white rounded-[2.5rem] overflow-hidden aspect-[9/19] flex flex-col relative">
+                    {/* Fake App header */}
+                    <div className="bg-primary px-4 pt-6 pb-4 flex justify-between items-center text-white">
+                      <span className="font-bold text-xs">Café Nilo</span>
+                      <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">طاولة 5</span>
+                    </div>
+                    {/* Fake App Content */}
+                    <div className="flex-1 p-3 overflow-y-auto bg-gray-50 flex flex-col gap-2">
+                      <div className="h-4 w-20 bg-gray-200 rounded-full mb-1" />
+                      <div className="grid grid-cols-2 gap-2">
+                        {[1, 2, 3, 4].map(i => (
+                          <div key={i} className="bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                             <div className="aspect-square bg-gray-100 rounded-lg mb-1" />
+                             <div className="h-2 w-12 bg-gray-200 rounded-full mb-1" />
+                             <div className="h-2 w-8 bg-primary/20 rounded-full" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Fake App Footer */}
+                    <div className="p-3 bg-white border-t">
+                      <div className="bg-[#1A1A1A] rounded-xl p-3 flex justify-between items-center text-white text-xs font-bold">
+                        <span>3 أصناف</span>
+                        <span>طلب الآن ←</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="font-bold text-lg">بيتزا مارجريتا × 2</p>
-                  <p className="text-primary font-black">95.00 ج.م</p>
+                </div>
+
+                {/* Floating Badges */}
+                <motion.div 
+                  className="absolute -top-10 -left-16 bg-white px-4 py-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  <span className="text-xs font-black">طلب جديد: بيتزا مارجريتا</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="absolute -bottom-6 -right-12 bg-white px-4 py-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-2"
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                >
+                  <div className="bg-green-500 text-white rounded-full p-1"><CheckIcon /></div>
+                  <span className="text-xs font-black">تم تأكيد الطلب</span>
                 </motion.div>
               </motion.div>
-            </motion.div>
+
+              {/* Floating Food Images */}
+              {foodImages.map((img, idx) => (
+                <motion.div
+                  key={idx}
+                  className={`absolute z-10 ${img.className} hidden md:block`}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * idx, duration: 0.8, type: "spring" }}
+                >
+                  <motion.img 
+                    src={img.src} 
+                    className="w-full h-full object-cover rounded-full border-4 border-white shadow-2xl"
+                    animate={{ y: [0, -idx % 2 === 0 ? 15 : -15, 0] }}
+                    transition={{ duration: 3 + idx, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
         </header>
 
-        {/* ── Infinite Marquee ── */}
-        <section className="bg-gradient-to-r from-surface-container-low via-white to-surface-container-low py-10 overflow-hidden border-y border-outline-variant/5">
-          <AnimateOnScroll className="max-w-7xl mx-auto px-6 text-center mb-6">
-            <h2 className="text-xs font-bold text-neutral-400 tracking-widest uppercase">شركاء النجاح</h2>
-          </AnimateOnScroll>
-          <div className="relative flex whitespace-nowrap" dir="ltr">
+        {/* ── Marquee Section ── */}
+        <section className="bg-white py-12 overflow-hidden border-y border-outline-variant/10">
+          <div className="max-w-[1440px] mx-auto px-6 mb-8 text-center uppercase tracking-widest text-[10px] font-black text-secondary/60">
+            شركاء النجاح
+          </div>
+          <div className="relative flex whitespace-nowrap overflow-hidden">
             <motion.div
               animate={{ x: ["0%", "-50%"] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
-              className="flex gap-16 min-w-max pr-16"
+              transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
+              className="flex gap-16 min-w-max pr-16 items-center"
             >
-              {[...Array(4)].map((_, blockIdx) => (
-                <div key={blockIdx} className="flex gap-16 items-center">
-                  {["كينتاكي", "ماكدونالدز", "بورجر كينج", "بيتزا هت", "صب واي", "هارديز", "باسطا شوب شوب", "كارفور", "ننجو نيجي", "فيشهاوس", "جنة السوشي", "كوشيكي", "دومينوز"].map((name, idx) => (
-                    <motion.span
-                      key={idx}
-                      className="text-2xl md:text-3xl font-black text-neutral-300 hover:text-primary transition-colors cursor-default select-none flex-shrink-0"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      {name}
-                    </motion.span>
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex gap-16 items-center">
+                  {["بيتزا هات", "ستاربكس", "برجر كينج", "كنتاكي", "ماكدونالدز", "صب واي", "دانكن", "هارديز"].map((name, idx) => (
+                    <div key={idx} className="flex items-center gap-3 bg-[#FFF8F9] px-6 py-3 rounded-full border border-primary/5 hover:border-primary/20 transition-colors cursor-default">
+                      <div className="w-2 h-2 bg-primary rounded-full" />
+                      <span className="text-lg md:text-xl font-black text-[#1A1A1A] select-none">{name}</span>
+                    </div>
                   ))}
                 </div>
               ))}
@@ -237,332 +260,246 @@ export default function LandingPage() {
         </section>
 
         {/* ── How It Works ── */}
-        <section id="how" className="py-24 bg-surface-container-low">
-          <AnimateOnScroll className="max-w-7xl mx-auto px-6 text-center mb-16">
-            <h2 className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">خطوات بسيطة</h2>
-            <p className="text-4xl font-bold text-on-surface">كيف يعمل OrderIt؟</p>
-          </AnimateOnScroll>
-          <StaggerOnScroll className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12">
-            {[
-              { icon: "qr_code_2", rotate: "rotate-3", title: "1. أنشئ الـ QR الخاص بك", desc: "قم برفع قائمة طعامك وتخصيص تصميم الـ QR ليتناسب مع هوية مطعمك." },
-              { icon: "touch_app", rotate: "-rotate-3", title: "2. العميل يطلب مباشرة", desc: "يمسح العميل الكود، يتصفح الصور، ويطلب ويدفع من هاتفه دون انتظار النادل." },
-              { icon: "check_circle", rotate: "rotate-6", title: "3. ابدأ التحضير فوراً", desc: "تصلك الطلبات مباشرة إلى المطبخ أو لوحة التحكم لتبدأ العمل بذكاء وسرعة." },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="flex flex-col items-center text-center group"
-              >
-                <motion.div
-                  className={`w-20 h-20 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary mb-6 transform ${step.rotate}`}
-                  whileHover={{ scale: 1.12, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <span className="material-symbols-outlined text-4xl" data-weight="fill">{step.icon}</span>
-                </motion.div>
-                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-secondary leading-relaxed">{step.desc}</p>
-              </motion.div>
-            ))}
-          </StaggerOnScroll>
+        <section id="how" className="py-32 bg-[#FFF8F9]">
+          <div className="max-w-[1440px] mx-auto px-6">
+            <AnimateOnScroll className="text-center mb-20">
+              <h2 className="text-primary font-black uppercase tracking-[0.3em] text-xs mb-4">ثلاث خطوات</h2>
+              <p className="text-4xl md:text-6xl font-black text-[#1A1A1A]">كيف يعمل OrderIt؟</p>
+            </AnimateOnScroll>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { number: "01", icon: "qr_code_2", title: "أنشئ الكود الخاص بك", desc: "قم برفع قائمة طعامك وتخصيص تصميم الـ QR ليتناسب مع هوية مطعمك الفريدة." },
+                { number: "02", icon: "touch_app", title: "العملاء يطلبون بذكاء", desc: "يمسح العميل الكود، يشاهد الصور الاحترافية، ويطلب مباشرة من هاتفه دون انتظار." },
+                { number: "03", icon: "task_alt", title: "استقبل وحضر الطلبات", desc: "تصلك الطلبات فوراً إلى المطبخ أو لوحة التحكم، مما يسرع عملية الخدمة ويرفع الكفاءة." },
+              ].map((step, i) => (
+                <AnimateOnScroll key={i} delay={i * 0.1} className="group p-10 bg-white rounded-[2.5rem] border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all relative overflow-hidden">
+                   <div className="absolute top-4 left-6 text-7xl font-black text-gray-50 group-hover:text-primary/5 transition-colors">{step.number}</div>
+                   <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:rotate-6">
+                      <span className="material-symbols-outlined text-3xl" data-weight="fill">{step.icon}</span>
+                   </div>
+                   <h3 className="text-2xl font-black mb-4">{step.title}</h3>
+                   <p className="text-secondary leading-relaxed font-medium">{step.desc}</p>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* ── Features Bento Grid ── */}
-        <section id="features" className="py-24 bg-surface">
-          <div className="max-w-7xl mx-auto px-6">
-            <AnimateOnScroll className="mb-16">
-              <h2 className="text-4xl font-black text-on-surface mb-4">مميزات صُممت لنمو مطعمك</h2>
-              <div className="w-24 h-1.5 bg-primary rounded-full" />
-            </AnimateOnScroll>
-            <StaggerOnScroll className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Main Feature */}
+        <section id="features" className="py-32 bg-white">
+          <div className="max-w-[1440px] mx-auto px-6">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-6">
+               <AnimateOnScroll>
+                  <h2 className="text-4xl md:text-6xl font-black text-[#1A1A1A]">مميزات صُممت <br /> لنمو مطعمك</h2>
+               </AnimateOnScroll>
+               <AnimateOnScroll>
+                  <p className="text-secondary max-w-sm font-medium">نحن نوفر لك كل الأدوات اللازمة لإدارة مطعمك بكل سهولة واحترافية تامة.</p>
+               </AnimateOnScroll>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Feature 1 - Large */}
               <motion.div
-                variants={fadeUp}
-                transition={{ duration: 0.7 }}
-                className="md:col-span-2 bg-primary p-8 rounded-3xl text-on-primary relative overflow-hidden flex flex-col justify-between h-[400px]"
-                whileHover={{ scale: 1.01, boxShadow: "0 30px 60px rgba(0,0,0,0.18)" }}
+                className="md:col-span-2 bg-[#1A1A1A] rounded-[2.5rem] p-10 text-white relative overflow-hidden h-[400px] group shadow-2xl"
+                whileHover={{ y: -5 }}
               >
-                <div className="z-10">
-                  <h3 className="text-3xl font-bold mb-4">لوحة تحكم ذكية وشاملة</h3>
-                  <p className="text-on-primary/80 max-w-md leading-relaxed text-lg">راقب مبيعاتك، أداء الموظفين، وأكثر الوجبات طلباً في لحظات. بيانات حقيقية لاتخاذ قرارات أفضل.</p>
+                <div className="z-10 relative">
+                  <h3 className="text-3xl font-black mb-4">لوحة تحكم ذكية وشاملة</h3>
+                  <p className="text-white/60 max-w-md text-lg font-medium mb-8">راقب مبيعاتك، أداء الموظفين، وأكثر الوجبات طلباً في لحظات. بيانات حقيقية لاتخاذ قرارات أفضل.</p>
+                  <button className="bg-primary text-white px-8 py-3 rounded-full font-bold">اكتشف المزيد</button>
                 </div>
-                <div className="z-10 mt-auto">
-                  <motion.button
-                    onClick={() => navigate('/admin')}
-                    className="bg-surface-container-lowest text-primary px-6 py-3 rounded-xl font-bold"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    اكتشف المزيد
-                  </motion.button>
+                <div className="absolute bottom-0 left-0 w-[60%] lg:w-[40%] translate-y-10 group-hover:translate-y-4 transition-transform duration-700">
+                   <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Dashboard" className="rounded-t-2xl shadow-2xl rotate-[-5deg]" />
                 </div>
-                <motion.div
-                  className="absolute bottom-[-10%] left-[-5%] w-2/3 opacity-30 transform -rotate-6"
-                  animate={{ rotate: [-6, -3, -6], y: [0, -6, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <img alt="Dashboard Preview" className="rounded-xl shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5ah4PkoVyRUhL0rKTe55f6GiQqphLNp5P4qOPN5YgTRvVThiqlzyZLeS45W3hhtYZaugiKWKLZ0zH4qkNMDRZC0GBXfA_j54ocuV9j9kDeJiKO2vLFeyrk8HFe4zyiwX3gnf_AUJwO381mddUDKxueAK-8_7TKwDPWr_1rR40_FVD7QXUkguotViRIbCBr55WLhod3QuY_PviK8fxnqea0O0kqGzOtPbg-oZmYrfQbUjprl_csvAJyjiPF9ef-Z24l_VUaMqf_C4N" />
-                </motion.div>
+                <div className="absolute top-0 right-0 w-[50%] h-full bg-gradient-to-l from-primary/20 to-transparent pointer-events-none" />
               </motion.div>
 
-              {[
-                { icon: "payments", title: "دفع إلكتروني آمن", desc: "دعم كامل لـ Apple Pay، مدى، والبطاقات الائتمانية لتسهيل عملية الدفع." },
-                { icon: "language", title: "متعدد اللغات", desc: "قائمة طعام تترجم نفسها تلقائياً لتناسب جميع زوار مطعمك من كل أنحاء العالم." },
-                { icon: "inventory_2", title: "إدارة المخزون", desc: "تنبيهات فورية عند اقتراب نفاذ أي صنف، لضمان استمرارية الخدمة دون انقطاع." },
-              ].map((feat, i) => (
-                <motion.div
-                  key={i}
-                  variants={fadeUp}
-                  transition={{ duration: 0.6 }}
-                  className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/5 shadow-sm"
-                  whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }}
-                >
-                  <motion.div
-                    className="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center text-primary mb-6"
-                    whileHover={{ rotate: 10, scale: 1.1 }}
-                  >
-                    <span className="material-symbols-outlined">{feat.icon}</span>
-                  </motion.div>
-                  <h3 className="text-xl font-bold mb-3">{feat.title}</h3>
-                  <p className="text-secondary leading-relaxed">{feat.desc}</p>
-                </motion.div>
-              ))}
-
-              <motion.div
-                variants={fadeUp}
-                transition={{ duration: 0.6 }}
-                className="bg-tertiary p-8 rounded-3xl text-on-tertiary"
-                whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
-              >
-                <motion.div
-                  className="w-12 h-12 bg-tertiary-container rounded-xl flex items-center justify-center text-on-tertiary-container mb-6"
-                  whileHover={{ rotate: 10, scale: 1.1 }}
-                >
-                  <span className="material-symbols-outlined">support_agent</span>
-                </motion.div>
-                <h3 className="text-xl font-bold mb-3">دعم فني 24/7</h3>
-                <p className="text-on-tertiary/80 leading-relaxed">نحن معك في كل خطوة. فريق دعم متخصص جاهز للرد على استفساراتك في أي وقت.</p>
+              {/* Feature 2 - Small */}
+              <motion.div className="bg-primary rounded-[2.5rem] p-10 text-white flex flex-col justify-between shadow-2xl" whileHover={{ y: -5 }}>
+                 <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8">
+                    <span className="material-symbols-outlined text-3xl">payments</span>
+                 </div>
+                 <div>
+                    <h3 className="text-2xl font-black mb-3">دفع إلكتروني آمن</h3>
+                    <p className="text-white/80 text-sm font-medium">دعم كامل لـ Apple Pay، مدى، والبطاقات الائتمانية لتسهيل عملية الدفع لعملائك.</p>
+                 </div>
               </motion.div>
-            </StaggerOnScroll>
+
+              {/* Feature 3 - Small */}
+              <motion.div className="bg-[#FFF8F9] border border-outline-variant/10 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-sm" whileHover={{ y: -5 }}>
+                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 font-tajawal">
+                    <span className="material-symbols-outlined text-3xl">language</span>
+                 </div>
+                 <div>
+                    <h3 className="text-2xl font-black mb-3">متعدد اللغات</h3>
+                    <p className="text-secondary text-sm font-medium">ترجمة تلقائية لقائمة الطعام لتناسب جميع زوار مطعمك من كل أنحاء العالم.</p>
+                 </div>
+              </motion.div>
+
+              {/* Feature 4 - Large */}
+              <motion.div
+                className="md:col-span-2 bg-white border border-outline-variant/10 rounded-[2.5rem] p-10 text-[#1A1A1A] relative overflow-hidden h-[400px] flex flex-col justify-between shadow-sm group"
+                whileHover={{ y: -5 }}
+              >
+                 <div className="z-10 relative">
+                    <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8">
+                      <span className="material-symbols-outlined text-3xl">palette</span>
+                    </div>
+                    <h3 className="text-3xl font-black mb-4">تخصيص كامل للهوية</h3>
+                    <p className="text-secondary max-w-sm font-medium">اختر الألوان، الخطوط، وتصميم المنيو بما يناسب هوية علامتك التجارية بطريقة احترافية.</p>
+                 </div>
+                 <div className="absolute top-10 -left-10 w-[50%] h-[80%] bg-primary/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000" />
+                 <div className="flex gap-4 z-10">
+                    <div className="w-12 h-12 bg-primary rounded-full shadow-lg" />
+                    <div className="w-12 h-12 bg-amber-500 rounded-full shadow-lg" />
+                    <div className="w-12 h-12 bg-emerald-500 rounded-full shadow-lg" />
+                    <div className="w-12 h-12 bg-[#1A1A1A] rounded-full shadow-lg" />
+                 </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* ── Templates Preview ── */}
-        <section id="restaurants" className="py-24 bg-surface-container-low overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-            <AnimateOnScroll>
-              <h2 className="text-4xl font-black text-on-surface mb-6">قوالب تناسب <span className="text-primary">فخامة</span> مطعمك</h2>
-              <p className="text-lg text-secondary leading-relaxed mb-8">اختر من بين عشرات القوالب المصممة بعناية فائقة لتبرز جمال أطباقك. يمكنك تخصيص الألوان، الخطوط، وتوزيع الصور بنقرة واحدة.</p>
-              <StaggerOnScroll className="space-y-4">
-                {[
-                  "تصميم متجاوب بالكامل مع الهواتف",
-                  "تحميل سريع للصور (Lazy Loading)",
-                  "أيقونات مخصصة لمكونات الأطباق",
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    variants={fadeUp}
-                    transition={{ duration: 0.5 }}
-                    className="flex items-center gap-4"
-                  >
-                    <motion.span
-                      className="material-symbols-outlined text-primary"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", delay: 0.2 * i }}
-                    >
-                      check_circle
-                    </motion.span>
-                    <span className="font-bold">{item}</span>
-                  </motion.div>
-                ))}
-              </StaggerOnScroll>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll
-              variants={{ hidden: { opacity: 0, x: 60 }, visible: { opacity: 1, x: 0 } }}
-              duration={0.8}
-            >
-              <motion.div
-                className="grid grid-cols-2 gap-4 transform rotate-3 scale-110"
-                whileHover={{ rotate: 0, scale: 1.05 }}
-                transition={{ duration: 0.4 }}
-              >
-                <div className="space-y-4">
-                  <motion.img whileHover={{ scale: 1.03 }} alt="Luxury Template" className="rounded-2xl shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWeq_V2mD3EQz1bhzye5CJF5Pd3RQLALrULn24GP6XG6S6hgBR_JZKMfYYRFm4mVvtuLJpHXOYAw3vzTzU7M1d1omPRSY0kmvmbYxeAEi1bODFIctNu0JPwapWIEbPGN_jjhVVINJDHy1f263gwyCWzie-RaBk0UmS4E6Ju6PAQfXUoDIB406BR8oXpOroO-8hq1B7KuOg_vTLB23d8TttH1B9PsWXFs4Sq-x_Aa8CjnI1jkSnCl79Slc9AomtbCgB-rA3gBwRUYsZ" />
-                  <motion.img whileHover={{ scale: 1.03 }} alt="Casual Template" className="rounded-2xl shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC88yYk-tGaWQZ9fANLnIyNYH7QVsZJNrr6z1iY98xJUQBD-z4Q37ud7srIU223sgBDlhbZX8iCRxV-b2Z9RNenw2SZ89yO74fuuk_BESLIRK6oeny6RKM1b7Crj-hRii-n4FpRkxEMlOtXekpaCuogBjuahXSIlNPK_qLwUteyv3PknajYCHcBGnjgPGweghc1j66JWjg8FGHJz_E9R3jyHgshDi3eidK4CSsYeKUnLVLZMX1RWThU3Fbsr8wVmKyLtSC4QLbYlfjA" />
-                </div>
-                <div className="pt-12 space-y-4">
-                  <motion.img whileHover={{ scale: 1.03 }} alt="Cafe Template" className="rounded-2xl shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMoYHuMfx8-wQQofuq0pb7gHOddmyVegA3e93Zfoqzq_DPLL28WV92MMOwjQxQbu2_BP5FjJGhrc8Ga-Z7VDS-FdrYz-YhbC_r6dAjwMXavklpQ5hNhnMMaP0dV5nvLzd-xiYpPIsBGA9krrAWKZj_02ksCsCLP2kPxFAClmRZjNZ38qlNDNCMN-xaSQxGdtmHbmLbld-PFQdcMVCj9naiDHvucRoNGiIidqGCoszsmbBosH4M-fXIMYrqhzmomiYHQg-vzm5R-VsH" />
-                  <motion.img whileHover={{ scale: 1.03 }} alt="Bakery Template" className="rounded-2xl shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATcKcxnNZWuXBtfqjqLJdcAUh2QnZ9u3v3slI5Q__yDdprsqVzS7NAujR8LQrsAndHAEGl_Np0MKfnxIGoERxRpFGGjkZWtQ4Ue__4yHdmv0luAZIP1Jd_dlSvhnuxxv_S9RtCoq1KJNkGVtBblDjWoYniiomzw53M1cZLcRfrXAuLM38vuVTGfsbyXOY2U_uznJY2PTqyh95dy_PWH1bMbUurrR-N1uDHoVlJnp-5v361Ne3dIhGH4kVTMYYZM6w91CLLOCurTAZN" />
-                </div>
-              </motion.div>
-            </AnimateOnScroll>
-          </div>
-        </section>
-
-        {/* ── Testimonials ── */}
-        <section className="py-24 bg-surface">
-          <AnimateOnScroll className="max-w-7xl mx-auto px-6 text-center mb-16">
-            <h2 className="text-4xl font-black text-on-surface">ماذا يقول شركاؤنا؟</h2>
-          </AnimateOnScroll>
-          <StaggerOnScroll className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
-            {[
-              {
-                text: "\"أفضل قرار اتخذته لمطعمي. زادت المبيعات بنسبة 25% بفضل سهولة الطلب وسرعة الخدمة التي وفرها لنا OrderIt.\"",
-                name: "أحمد المنصور",
-                role: "مالك مطعم ذا ستيك هاوس",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDFoXKN_hym1iI6EP5jn0tDHwB_T7alEXPFeJu9rwdpGUC0J_GqVFD0pzcop-hynZlS48_2-ofyUR_ChNiN0XMW5py0OxTDc_P2JI2HvnYu2biwHYIfDyNjeHhki5ZJCJCddzxFaeSCophijUdxxeT6hc39Tk4mxGFN7SlsjT5HCVqs0M0nv2NKdu8Cc401BSOcne89GsWzd31JjrbhrUbyHzcSwvZoGA000XeTYNfQn-4LC5CfdevYHC4XflnQYvQ9x79wHc1Gfbve",
-                featured: false,
-              },
-              {
-                text: "\"النظام سهل جداً في التعامل، الموظفون تعلموا عليه في دقائق. خدمة الدعم الفني استثنائية وسريعة جداً.\"",
-                name: "سارة القحطاني",
-                role: "مديرة تشغيل سلسلة كافيه لاونج",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDauIoZv49FfsWZpXchm7JRpuPWDilrZ3XcuH74n5mIKuuY8LRteUenyxRF9HIgQwz4nypIWbsiOCy015E-wnZulNHf3vEzJiABJbw3WaBsVXl7egu837gyqQXOw9R5dyJNXgGL8oEIBYhBuKhP_-LC2SphqhNeHcYOA3llIxzNeJTP_rdp4Ws8luBHwFnBZatao4Q7qSeMnvQjShQDlX8t4zsjsy-d8d3bfK6nMhaez2PeZPXlG0j-h5V99T00CxLxg_ZUHvxhyD1Q",
-                featured: true,
-              },
-              {
-                text: "\"الـ QR كود غير شكل المكان، العملاء معجبون جداً بالتجربة الرقمية والصور الاحترافية للأطباق.\"",
-                name: "محمد إبراهيم",
-                role: "شيف ومالك مطعم لقمة هنية",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBn23h3rmplr69s34qvuX0P6_a0kdKBwT3IBO3cohhpLIzmjA0fmFqQdGj4AA1Upc0Qrsl9PwGqPya8s9n0OmshKc_WYofifgqxS2e8s4YCQTxbmNiIgrHTaOuIRK6T6AIJ0Of6zyrk-ctzJDOxh0uVwj8_w2BOovdlLNDWGE0o0lKlI6Vov_W0typtGJsjQdGCnBKfX5NpsTtmlrpfPqn8FK3WlXjit0rs4PM3eGsjI7PiqtZcZbuCrR_Kq5wx8w_MXQZAV60l2MCx",
-                featured: false,
-              },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                transition={{ duration: 0.6 }}
-                className={`bg-surface-container-lowest p-8 rounded-3xl border shadow-sm ${t.featured ? "border-outline-variant/10 border-t-4 border-t-primary" : "border-outline-variant/10"}`}
-                whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.1)" }}
-              >
-                <div className="flex text-primary mb-4">
-                  {[...Array(5)].map((_, si) => (
-                    <motion.span
-                      key={si}
-                      className="material-symbols-outlined"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 + si * 0.05 }}
-                    >
-                      star
-                    </motion.span>
+        {/* ── Dark Trust / Reviews Section ── */}
+        <section className="bg-[#1A1A1A] py-32 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="max-w-[1440px] mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
+            <div className="z-10">
+              <AnimateOnScroll>
+                <h2 className="text-primary font-black uppercase tracking-[0.3em] text-xs mb-6">ثقة بلا حدود</h2>
+                <h2 className="text-4xl md:text-6xl font-black text-white leading-tight mb-8 font-tajawal italic">لماذا يختارنا <br /> أفضل أصحاب المطاعم؟</h2>
+                <p className="text-white/60 text-lg mb-12 max-w-md font-medium leading-relaxed font-tajawal">نحن لا نقدم مجرد تطبيق، بل نقدم شريكاً يعتمد عليه في نمو واستقرار أعمال مطعمك يوماً بعد يوم.</p>
+                
+                <div className="space-y-6">
+                  {[
+                    { icon: "public", title: "انتشار عالمي", desc: "نظام مصمم ليواكب تطلعات المطاعم الطموحة للتوسع والنمو." },
+                    { icon: "bolt", title: "كفاءة مطلقة", desc: "تسريع بنسبة 40% في دوران الطاولات وزيادة ملحوظة في حجم الطلبات." },
+                  ].map((feat, i) => (
+                    <div key={i} className="flex gap-6 items-start">
+                      <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+                         <span className="material-symbols-outlined text-2xl">{feat.icon}</span>
+                      </div>
+                      <div>
+                        <div className="text-white font-black mb-1">{feat.title}</div>
+                        <div className="text-white/50 text-sm">{feat.desc}</div>
+                      </div>
+                    </div>
                   ))}
                 </div>
-                <p className="text-on-surface mb-8 italic leading-relaxed">{t.text}</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-neutral-200 rounded-full overflow-hidden">
-                    <img alt="Restaurant Owner" src={t.img} />
-                  </div>
-                  <div>
-                    <p className="font-bold">{t.name}</p>
-                    <p className="text-xs text-secondary">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </StaggerOnScroll>
+              </AnimateOnScroll>
+            </div>
+
+            <div className="space-y-6 z-10">
+              {[
+                { name: "أحمد المنصور", role: "مالك مطعم ذا ستيك هاوس", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", quote: '"أفضل قرار اتخذته لمطعمي. زادت المبيعات بنسبة 25% مع جودة خدمة أفضل للعملاء."', color: 'border-primary' },
+                { name: "سارة القحطاني", role: "مديرة كافيه لاونج", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", quote: '"النظام سهل جداً والموظفون تعلموا عليه في دقائق. الدعم الفني دائماً متاح وسريع."', color: 'border-amber-500' },
+              ].map((rev, i) => (
+                <AnimateOnScroll key={i} delay={i * 0.2} variants={{ hidden: { opacity: 0, x: 50 }, visible: { opacity: 1, x: 0 } }}>
+                   <div className={`bg-white/5 border-l-4 ${rev.color} p-8 rounded-2xl shadow-xl hover:bg-white/[0.08] transition-colors`}>
+                      <div className="flex text-amber-500 mb-6 tracking-widest">★★★★★</div>
+                      <p className="text-white text-lg font-medium italic mb-8 leading-relaxed font-tajawal">{rev.quote}</p>
+                      <div className="flex items-center gap-4">
+                         <img src={rev.img} alt={rev.name} className="w-12 h-12 rounded-full object-cover border-2 border-white/10" />
+                         <div>
+                            <div className="text-white font-black">{rev.name}</div>
+                            <div className="text-white/40 text-xs">{rev.role}</div>
+                         </div>
+                      </div>
+                   </div>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* ── Final CTA ── */}
-        <section id="contact" className="py-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <AnimateOnScroll
-              variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }}
-              duration={0.7}
-            >
-              <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-center text-on-primary relative overflow-hidden shadow-2xl">
-                {/* Animated blobs inside CTA */}
-                <motion.div
-                  className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.div
-                  className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"
-                  animate={{ scale: [1, 1.4, 1], opacity: [0.08, 0.18, 0.08] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                />
-                <div className="relative z-10">
-                  <h2 className="text-4xl md:text-6xl font-black mb-8">هل أنت مستعد لتغيير مستقبل مطعمك؟</h2>
-                  <p className="text-xl text-on-primary/80 mb-12 max-w-2xl mx-auto leading-relaxed">انضم إلى أكثر من 500 مطعم وكافيه يستخدمون OrderIt يومياً لرفع كفاءة العمل وزيادة الأرباح.</p>
-                  <div className="flex flex-wrap justify-center gap-6">
-                    <motion.button
-                      onClick={() => navigate('/register')}
-                      className="bg-surface-container-lowest text-primary px-10 py-5 rounded-xl text-xl font-bold shadow-xl"
-                      whileHover={{ scale: 1.06, boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      سجل مطعمك الآن
-                    </motion.button>
-                    <motion.button
-                      className="border-2 border-white/30 text-white px-10 py-5 rounded-xl text-xl font-bold"
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.1)", scale: 1.04 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      تحدث مع مبيعاتنا
-                    </motion.button>
-                  </div>
+        <section id="contact" className="py-32 relative">
+          <div className="max-w-[1440px] mx-auto px-6">
+             <motion.div 
+               className="bg-primary rounded-[4rem] p-16 md:p-24 text-center text-white relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(240,48,48,0.4)]"
+               initial={{ opacity: 0, scale: 0.9 }}
+               whileInView={{ opacity: 1, scale: 1 }}
+               viewport={{ once: true }}
+             >
+                <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
+                
+                <h2 className="text-4xl md:text-7xl font-black mb-8 z-10 relative leading-tight">هل أنت مستعد <br /> لتغيير مستقبل مطعمك؟</h2>
+                <p className="text-white/80 text-xl font-medium mb-12 max-w-2xl mx-auto z-10 relative">انضم إلى مجتمع OrderIt اليوم وابدأ تجربتك المجانية لمدة 14 يوماً. لا حاجة لبطاقة ائتمان.</p>
+                
+                <div className="flex flex-wrap justify-center gap-6 z-10 relative">
+                   <motion.button
+                    onClick={() => navigate('/register')}
+                    className="bg-white text-primary px-12 py-5 rounded-full text-xl font-black shadow-2xl"
+                    whileHover={{ scale: 1.05, y: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                   >
+                     سجل مطعمك الآن
+                   </motion.button>
+                   <motion.button
+                    className="bg-[#1A1A1A] text-white px-12 py-5 rounded-full text-xl font-black shadow-2xl"
+                    whileHover={{ scale: 1.05, y: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                   >
+                     تواصل مع المبيعات
+                   </motion.button>
                 </div>
-              </div>
-            </AnimateOnScroll>
+                <div className="mt-8 text-white/40 text-xs font-bold uppercase tracking-widest">متاح الآن في جميع دول الخليج ومصر</div>
+             </motion.div>
           </div>
         </section>
 
         {/* ── Footer ── */}
-        <footer className="bg-surface-container-low pt-20 pb-10 border-t border-outline-variant/10">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+        <footer className="bg-white pt-24 pb-12 border-t border-outline-variant/10">
+          <div className="max-w-[1440px] mx-auto px-6">
+            <div className="grid md:grid-cols-4 gap-12 mb-20">
               <div className="md:col-span-1">
-                <div className="flex items-center gap-3 mb-6">
-                  <Logo size="xl" />
-                </div>
-                <p className="text-secondary leading-relaxed mb-6">نحن نؤمن بأن التكنولوجيا هي المفتاح لتحسين تجربة الضيافة وتحقيق النمو المستدام للمطاعم.</p>
-                <div className="flex gap-4">
-                  {["public", "share"].map((icon, i) => (
-                    <motion.a
-                      key={i}
-                      className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                      href="#"
-                      whileHover={{ scale: 1.15, rotate: 5 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <span className="material-symbols-outlined text-sm">{icon}</span>
-                    </motion.a>
+                <Logo size="2xl" lightBg />
+                <p className="text-secondary mt-8 leading-relaxed font-medium">نحن هنا لنصنع ثورة في عالم الضيافة والمطاعم باستخدام أحدث حلول التكنولوجيا والذكاء الاصطناعي.</p>
+                <div className="flex gap-4 mt-8">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="w-10 h-10 bg-gray-100 rounded-full hover:bg-primary transition-colors cursor-pointer" />
                   ))}
                 </div>
               </div>
-              {[
-                { title: "المنتج", links: ["المميزات", "الأسعار", "القوالب", "التكاملات"] },
-                { title: "الشركة", links: ["من نحن", "الوظائف", "المدونة", "تواصل معنا"] },
-                { title: "الدعم", links: ["مركز المساعدة", "سياسة الخصوصية", "شروط الاستخدام", "الأسئلة الشائعة"] },
-              ].map((col, i) => (
-                <div key={i}>
-                  <h4 className="font-bold text-lg mb-6">{col.title}</h4>
-                  <ul className="space-y-4 text-secondary">
-                    {col.links.map((link, li) => (
-                      <li key={li}>
-                        <motion.a
-                          className="hover:text-primary transition-colors"
-                          href="#"
-                          whileHover={{ x: -4 }}
-                        >
-                          {link}
-                        </motion.a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col md:flex-row-reverse justify-between items-center gap-6 pt-8 border-t border-outline-variant/10">
-              <p className="text-xs uppercase tracking-widest text-secondary">© 2026 OrderIt. جميع الحقوق محفوظة.</p>
-              <div className="flex gap-6">
-                <a className="text-xs uppercase tracking-widest text-secondary hover:underline" href="#">Privacy Policy</a>
-                <a className="text-xs uppercase tracking-widest text-secondary hover:underline" href="#">Terms of Service</a>
+              <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
+                 <div>
+                    <h4 className="font-black text-lg mb-6">المنتج</h4>
+                    <ul className="space-y-4 text-secondary font-medium">
+                      <li className="hover:text-primary cursor-pointer transition-colors">المميزات</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">الأسعار</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">أمن البيانات</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">التكاملات</li>
+                    </ul>
+                 </div>
+                 <div>
+                    <h4 className="font-black text-lg mb-6">الشركة</h4>
+                    <ul className="space-y-4 text-secondary font-medium">
+                      <li className="hover:text-primary cursor-pointer transition-colors">من نحن</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">الوظائف</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">المدونة</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">الصحافة</li>
+                    </ul>
+                 </div>
+                 <div>
+                    <h4 className="font-black text-lg mb-6">الدعم</h4>
+                    <ul className="space-y-4 text-secondary font-medium">
+                      <li className="hover:text-primary cursor-pointer transition-colors">مركز المساعدة</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">سياسة الخصوصية</li>
+                      <li className="hover:text-primary cursor-pointer transition-colors">شروط الخدمة</li>
+                    </ul>
+                 </div>
               </div>
+            </div>
+            <div className="pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-secondary/60">
+               <div>© 2026 OrderIt. جميع الحقوق محفوظة.</div>
+               <div className="flex gap-8 uppercase tracking-widest">
+                  <span className="hover:text-primary cursor-pointer">English</span>
+                  <span className="hover:text-primary cursor-pointer">Privacy</span>
+                  <span className="hover:text-primary cursor-pointer">Terms</span>
+               </div>
             </div>
           </div>
         </footer>

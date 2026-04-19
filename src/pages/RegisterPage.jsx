@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
 import Logo from '../components/Logo';
 
+// Animation Constants
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 15 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 };
 
-/* ─── Input helper ─── */
+/* ─── UI Helper: Form Field ─── */
 function Field({ label, icon, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-bold text-on-surface-variant pr-1">{label}</label>
+      <label className="block text-xs font-black text-secondary tracking-tight pr-1 uppercase lg:text-secondary/60">{label}</label>
       <div className="relative group">
-        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-xl">
+        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-lg">
           {icon}
         </span>
         {children}
@@ -30,542 +31,431 @@ function Field({ label, icon, children }) {
 }
 
 const inputClass =
-  'w-full pr-12 pl-4 py-3.5 bg-surface-container rounded-xl border border-outline-variant/10 focus:border-primary focus:bg-surface-container-lowest outline-none transition-all text-on-surface placeholder:text-outline/50';
+  'w-full pr-11 pl-4 py-3.5 bg-surface-container/30 rounded-xl border border-outline-variant/10 focus:border-primary focus:bg-white focus:shadow-md outline-none transition-all text-on-surface placeholder:text-outline/40 font-bold text-sm lg:py-4 lg:bg-white/40 lg:backdrop-blur-sm';
 
-/* ─── Step 1: Restaurant Info ─── */
-function Step1({ formData, setFormData, onNext }) {
-  const [showPassword, setShowPassword] = useState(false);
+/* ─── Device Mockup (Multi-Template) ─── */
+function DeviceMockup({ formData }) {
+  const isDarkTemplate = formData.template === 'dark';
 
   return (
-    <motion.div key="step1" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: 30 }}>
-      <motion.div variants={fadeUp} className="mb-8">
-        <h2 className="text-2xl font-black text-on-surface mb-1">معلومات المطعم</h2>
-        <p className="text-secondary text-sm">ابدأ رحلتك مع OrderIt بتزويدنا بالتفاصيل الأساسية.</p>
-      </motion.div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, x: 30 }}
+      animate={{ opacity: 1, scale: 1, x: 0 }}
+      exit={{ opacity: 0, scale: 0.9, x: 30 }}
+      className="relative w-full max-w-[280px] mx-auto lg:mx-0 select-none"
+    >
+      <motion.div
+        animate={{ y: [0, -10, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-10"
+      >
+        <div className="bg-[#080808] rounded-[2.8rem] p-2.5 shadow-[0_45px_100px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/10 relative">
 
-      <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="space-y-5">
-        <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="اسم المطعم" icon="storefront">
-            <input
-              type="text"
-              className={inputClass}
-              placeholder="مثال: شاورما السلطان"
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          </Field>
-          <Field label="اسم المالك" icon="person">
-            <input
-              type="text"
-              className={inputClass}
-              placeholder="الاسم الكامل"
-              value={formData.owner}
-              onChange={e => setFormData({ ...formData, owner: e.target.value })}
-              required
-            />
-          </Field>
-          <Field label="رقم الهاتف" icon="call">
-            <input
-              type="tel"
-              className={inputClass}
-              placeholder="01X XXXX XXXX"
-              dir="ltr"
-              value={formData.phone}
-              onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              required
-            />
-          </Field>
-          <Field label="واتساب (اختياري)" icon="chat">
-            <input
-              type="tel"
-              className={inputClass}
-              placeholder="01X XXXX XXXX"
-              dir="ltr"
-              value={formData.whatsapp}
-              onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
-            />
-          </Field>
-        </motion.div>
+          {/* Screen */}
+          <div className={`${isDarkTemplate ? 'bg-[#181818]' : 'bg-white'} rounded-[2rem] aspect-[9/19] overflow-hidden flex flex-col relative transition-colors duration-500`}>
 
-        {/* Password */}
-        <motion.div variants={fadeUp} className="space-y-1.5">
-          <label className="block text-sm font-bold text-on-surface-variant pr-1">كلمة المرور</label>
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-xl">lock</span>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className={`${inputClass} pl-20`}
-              placeholder="••••••••"
-              dir="ltr"
-              value={formData.password}
-              onChange={e => setFormData({ ...formData, password: e.target.value })}
-              required
-              minLength={8}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(v => !v)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors flex items-center gap-0.5"
-            >
-              <span className="text-[10px] font-bold">{showPassword ? 'إخفاء' : 'إظهار'}</span>
-              <span className="material-symbols-outlined text-base">{showPassword ? 'visibility_off' : 'visibility'}</span>
-            </button>
+            {/* Status Bar */}
+            <div className={`h-6 w-full flex justify-between items-center px-5 pt-1.5 z-30 ${isDarkTemplate ? 'text-white/40' : 'text-black/40'}`}>
+              <span className="text-[8px] font-black">9:41</span>
+              <div className="flex gap-1 items-center">
+                <span className="material-symbols-outlined text-[8px]">signal_cellular_4_bar</span>
+                <span className="material-symbols-outlined text-[8px]">battery_very_low</span>
+              </div>
+            </div>
+
+            {/* Template Content */}
+            <div className="flex-1 overflow-hidden flex flex-col pt-2">
+
+              {/* Hero / Logo Section */}
+              <div className="relative h-32 flex-shrink-0">
+                <img src={formData.heroImage || "https://images.unsplash.com/photo-1555396273-367ea474fb73?w=500&q=80"} className="w-full h-full object-cover" />
+                <div className={`absolute inset-0 bg-gradient-to-b from-black/20 ${isDarkTemplate ? 'via-[#181818]/60 to-[#181818]' : 'via-white/60 to-white'}`} />
+
+                {/* Table Badge */}
+                <div className="absolute top-2 left-3 z-10">
+                  <div style={{ backgroundColor: formData.primaryColor }} className="text-white px-2.5 py-0.5 rounded-full text-[7px] font-black shadow-lg">طاولة 5</div>
+                </div>
+
+                {/* Logo Center (Bright) vs Right (Dark) */}
+                <div className={`absolute z-20 ${isDarkTemplate ? '-bottom-4 right-4 flex items-center gap-2' : '-bottom-6 left-1/2 -track-x-1/2 flex flex-col items-center'}`}
+                  style={!isDarkTemplate ? { transform: 'translateX(-50%)' } : {}}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shadow-lg ${isDarkTemplate ? 'bg-[#222]' : 'bg-white'}`}>
+                    {formData.logoImage ? (
+                      <img src={formData.logoImage} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-primary font-black text-lg">{formData.name ? formData.name.charAt(0) : 'O'}</span>
+                    )}
+                  </div>
+                  <div className={isDarkTemplate ? "pb-1" : "text-center"}>
+                    <div className={`text-[10px] font-black ${isDarkTemplate ? 'text-white' : 'text-black'}`}>{formData.name || "اسم المطعم"}</div>
+                    {isDarkTemplate && <div className="text-[7px] text-primary font-black uppercase tracking-widest mt-0.5">مطعم فاخر</div>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="mt-8 px-4">
+                <div className={`flex gap-2 overflow-hidden mb-4 ${isDarkTemplate ? 'flex-col' : 'flex-row'}`}>
+                  <div style={{ backgroundColor: formData.primaryColor }} className={`px-3 py-1 rounded-full text-[8px] font-black text-white w-fit ${isDarkTemplate ? 'border-r-4 border-white/20' : ''}`}>الرئيسية</div>
+                  <div className={`px-3 py-1 rounded-full text-[8px] font-bold w-fit ${isDarkTemplate ? 'text-white/20' : 'bg-gray-100 text-gray-400'}`}>المشروبات</div>
+                </div>
+
+                {/* Items */}
+                <div className="space-y-3">
+                  {[1, 2].map(i => (
+                    <div key={i} className={`flex gap-3 p-2 rounded-xl ${isDarkTemplate ? 'bg-white/5 border border-white/5' : 'bg-white shadow-sm border border-gray-50'}`}>
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img src={`https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80&i=${i}`} className="w-full h-full object-cover opacity-60" />
+                      </div>
+                      <div className="flex-1 space-y-1 py-0.5 min-w-0">
+                        <div className={`h-1.5 rounded-full ${isDarkTemplate ? 'bg-white/10 w-20' : 'bg-gray-200 w-16'}`} />
+                        <div className={`h-1 rounded-full ${isDarkTemplate ? 'bg-white/5 w-24' : 'bg-gray-100 w-24'}`} />
+                        <div style={{ color: formData.primaryColor }} className="text-[9px] font-black mt-1">95.00</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Button */}
+              <div className={`mt-auto p-3 ${isDarkTemplate ? 'bg-[#111]' : 'bg-white border-t border-gray-50'}`}>
+                <button style={{ backgroundColor: formData.primaryColor }} className="w-full py-2.5 rounded-lg text-[8px] font-black text-white">إتمام الطلب</button>
+              </div>
+            </div>
+
+            {/* Notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4.5 bg-[#080808] rounded-b-xl z-40" />
           </div>
-          <p className="text-xs text-secondary mr-1">يجب أن تحتوي على 8 أحرف على الأقل</p>
-        </motion.div>
+        </div>
 
-        <motion.div variants={fadeUp} className="pt-4 flex flex-col md:flex-row-reverse items-center justify-between gap-4 border-t border-outline-variant/10">
-          <motion.button
-            type="submit"
-            className="w-full md:w-auto px-10 py-4 bg-primary text-on-primary font-black text-base rounded-xl shadow-lg flex items-center justify-center gap-2"
-            whileHover={{ scale: 1.03, boxShadow: "0 16px 32px rgba(0,0,0,0.15)" }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <span>المتابعة</span>
-            <span className="material-symbols-outlined">arrow_back</span>
-          </motion.button>
-          <p className="text-sm text-secondary">
-            لديك حساب؟{' '}
-            <Link to="/login" className="text-primary font-bold hover:underline underline-offset-4">
-              سجل الدخول
-            </Link>
-          </p>
-        </motion.div>
-      </form>
-
-      {/* Feature Cards */}
-      <motion.div variants={fadeUp} className="mt-10 grid grid-cols-3 gap-4">
-        {[
-          { icon: 'speed', title: 'إعداد سريع', desc: 'أقل من دقيقتين' },
-          { icon: 'security', title: 'بيانات آمنة', desc: 'تشفير كامل' },
-          { icon: 'support_agent', title: 'دعم مباشر', desc: 'فريقنا معك دائماً' },
-        ].map((f, i) => (
-          <div key={i} className="bg-surface-container p-4 rounded-2xl flex flex-col items-center text-center gap-2">
-            <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
-            <p className="font-bold text-sm text-on-surface">{f.title}</p>
-            <p className="text-[11px] text-secondary">{f.desc}</p>
-          </div>
-        ))}
+        {/* Shadow floor */}
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[80%] h-4 bg-black/10 blur-2xl rounded-full" />
       </motion.div>
     </motion.div>
   );
 }
 
-/* ─── Step 2: Domain ─── */
+/* ─── Steps List ─── */
+function Step1({ formData, setFormData, onNext }) {
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <motion.div key="step1" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
+      <div className="mb-6 lg:mb-10">
+        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">ابدأ رحلتك</h2>
+        <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">خطوات بسيطة لتنضم لآلاف المطاعم الناجحة.</p>
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="space-y-4 lg:space-y-6">
+        <Field label="اسم المطعم" icon="storefront">
+          <input type="text" className={inputClass} placeholder="مثال: شاورما السلطان" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+        </Field>
+        <Field label="اسم المالك" icon="person">
+          <input type="text" className={inputClass} placeholder="ادخل اسمك الكامل" value={formData.owner} onChange={e => setFormData({ ...formData, owner: e.target.value })} required />
+        </Field>
+        <Field label="رقم الجوال" icon="call">
+          <input type="tel" dir="ltr" className={inputClass} placeholder="01X XXXX XXXX" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+        </Field>
+        <Field label="كلمة المرور" icon="lock">
+          <div className="relative">
+            <input type={showPassword ? 'text' : 'password'} dir="ltr" className={`${inputClass} pl-20`} placeholder="••••••••" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required minLength={8} />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-primary uppercase hover:bg-primary/5 px-2 py-1 rounded-md transition-colors lg:text-[11px]">
+              {showPassword ? 'إخفاء' : 'إظهار'}
+            </button>
+          </div>
+        </Field>
+        <button type="submit" className="w-full bg-primary text-white py-4 rounded-xl font-black text-sm shadow-lg flex items-center justify-center gap-2 mt-4 active:scale-95 transition-transform lg:py-5 lg:text-base lg:rounded-2xl lg:shadow-primary/20">
+          <span>المتابعة للخطوة التالية</span>
+          <span className="material-symbols-outlined text-base lg:text-xl">arrow_back</span>
+        </button>
+      </form>
+    </motion.div>
+  );
+}
+
 function Step2({ formData, setFormData, onNext, onPrev }) {
   const preview = formData.domain || 'your-restaurant';
   return (
-    <motion.div key="step2" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: 30 }}>
-      <motion.div variants={fadeUp} className="mb-8">
-        <h2 className="text-2xl font-black text-on-surface mb-1">عنوان متجرك الرقمي</h2>
-        <p className="text-secondary text-sm">هذا هو الرابط الذي سيستخدمه عملاؤك للوصول إلى قائمتك.</p>
-      </motion.div>
+    <motion.div key="step2" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
+      <div className="mb-6 lg:mb-10">
+        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">رابط موقعك</h2>
+        <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">هذا هو العنوان الذي سيستخدمه عملاؤك للطلب.</p>
+      </div>
 
-      <motion.div variants={fadeUp} className="space-y-6">
-        {/* Domain Input */}
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-on-surface-variant pr-1">أدخل اسم المطعم بالإنجليزية</label>
-          <div
-            className="flex items-stretch bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 focus-within:border-primary transition-all"
-            dir="ltr"
-          >
+      <div className="space-y-6 lg:space-y-8">
+        <Field label="عنوان الموقع الرقمي" icon="language">
+          <div className="relative flex flex-row items-stretch overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container/30 focus-within:border-primary transition-colors lg:rounded-2xl lg:bg-white/50" dir="ltr">
             <input
-              className="flex-1 bg-transparent border-none text-left px-5 py-4 text-lg font-bold text-primary focus:ring-0 outline-none placeholder:text-outline/40"
-              placeholder="your-restaurant"
               type="text"
+              className="flex-1 bg-transparent border-none text-left px-4 py-4 text-sm font-black text-primary outline-none placeholder:text-outline/30 lg:text-lg"
+              placeholder="my-restaurant"
               value={formData.domain}
               onChange={e => setFormData({ ...formData, domain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
             />
-            <div className="bg-surface-container-high px-4 flex items-center text-secondary font-medium text-sm border-l border-outline-variant/10">
-              .orderit.com
-            </div>
+            <div className="bg-surface-container flex items-center px-4 text-xs font-black text-secondary/40 border-l border-outline-variant/10 lg:text-sm lg:bg-gray-50/50">.orderit.com</div>
           </div>
-          <AnimatePresence>
-            {formData.domain.length > 2 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex items-center gap-2 text-emerald-600 font-bold pr-1"
-              >
-                <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                <span className="text-sm">هذا العنوان متاح!</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        </Field>
 
-        {/* Browser Preview */}
-        <div className="bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
-          <p className="text-xs font-bold text-secondary mb-3 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm">visibility</span>
-            معاينة الرابط
-          </p>
-          <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md border border-outline-variant/10">
-            <div className="h-8 bg-surface-container flex items-center px-3 gap-1.5 border-b border-outline-variant/10" dir="ltr">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-              <div className="mx-auto bg-surface rounded-full h-5 w-44 flex items-center justify-center px-2 text-[10px] text-secondary border border-outline-variant/10 overflow-hidden">
-                <span className="material-symbols-outlined text-[10px] mr-1">lock</span>
+        <div className="bg-surface-container/20 rounded-2xl p-4 border border-outline-variant/5 lg:p-6 lg:bg-white/40 lg:backdrop-blur-md lg:shadow-sm">
+          <div className="flex items-center gap-2 mb-3 text-secondary/60 lg:mb-4">
+            <span className="material-symbols-outlined text-xs lg:text-sm">browser_updated</span>
+            <span className="text-[10px] font-black uppercase tracking-widest leading-none lg:text-[11px]">معاينة المتصفح</span>
+          </div>
+          <div className="bg-white rounded-xl shadow-md border border-outline-variant/5 overflow-hidden lg:rounded-2xl">
+            <div className="h-6 bg-gray-50 flex items-center px-3 gap-1.5 border-b border-gray-100 lg:h-8" dir="ltr">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 opacity-40 lg:w-2 lg:h-2" />
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-40 lg:w-2 lg:h-2" />
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400 opacity-40 lg:w-2 lg:h-2" />
+              <div className="flex-1 max-w-[120px] mx-auto bg-white rounded-full h-3.5 flex items-center justify-center text-[7px] text-secondary/30 scale-x-[-1] overflow-hidden lg:max-w-[160px] lg:h-4.5 lg:text-[9px]">
+                <span className="material-symbols-outlined text-[7px] mr-1 lg:text-[9px]">lock</span>
                 {preview}.orderit.com
               </div>
             </div>
-            <div className="h-28 relative overflow-hidden">
-              <img
-                className="w-full h-full object-cover opacity-70"
-                alt="preview"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBCsTfAZRd2n_mwp0vT31WBhOKwNJtGMl5H8a5_2hVrFxo7Qcdo0iMy_WahPJrCBJIDWjgws0SooKuO5W56XjKBm-d8cYw823hU9-tV9GAxLSsYe8W7SCt79J_sH8lHQiKmJIqfKEvHHDKSD59gmIxKhfnW22nYJTGXN7XwJSqelDGidaAIanBH1D5XuCa__fc2rU6ArHWp80AEznmmexToryD0_4s-Be4QKdTtapqeiqvZ3zBBNpB_yRtv0GqYZW3JC2xu83dvokE"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 to-transparent flex items-end p-4">
-                <div>
-                  <div className="h-2.5 w-20 bg-primary/30 rounded mb-2" />
-                  <div className="h-2 w-32 bg-outline/20 rounded" />
-                </div>
-              </div>
+            <div className="h-16 relative lg:h-24">
+              <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=500&q=80" className="w-full h-full object-cover opacity-10" />
             </div>
           </div>
         </div>
 
-        {/* Benefits */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:gap-4">
+          <div className="bg-white p-3 rounded-xl border border-outline-variant/10 flex items-center gap-3 lg:p-4 lg:rounded-2xl lg:shadow-sm lg:hover:shadow-md transition-shadow">
+            <span className="material-symbols-outlined text-primary text-lg lg:text-2xl">bolt</span>
+            <div className="text-[9px] font-black text-on-surface uppercase lg:text-[10px]">فائق السرعة</div>
+          </div>
+          <div className="bg-white p-3 rounded-xl border border-outline-variant/10 flex items-center gap-3 lg:p-4 lg:rounded-2xl lg:shadow-sm lg:hover:shadow-md transition-shadow">
+            <span className="material-symbols-outlined text-primary text-lg lg:text-2xl">verified_user</span>
+            <div className="text-[9px] font-black text-on-surface uppercase lg:text-[10px]">SSL مجاني</div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-2 lg:pt-4">
+          <button onClick={onNext} disabled={formData.domain.length < 3} className="w-full bg-primary text-white py-4 rounded-xl font-black text-sm shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 lg:py-5 lg:text-base lg:rounded-2xl">
+            <span>الخطوة التالية: تصميم المنيو</span>
+            <span className="material-symbols-outlined text-base lg:text-xl">arrow_back</span>
+          </button>
+          <button onClick={onPrev} className="text-[10px] font-black text-secondary/60 hover:text-primary transition-colors text-center py-1 lg:text-xs">الرجوع للخطوة الأولى</button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function Step3({ formData, setFormData, handleFinish, onPrev }) {
+  const headRef = useRef(null);
+  const logoRef = useRef(null);
+  const handleUpload = (e, key) => {
+    const f = e.target.files[0];
+    if (f) setFormData(p => ({ ...p, [key]: URL.createObjectURL(f) }));
+  };
+
+  return (
+    <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
+      <div className="mb-6 lg:mb-10 text-center lg:text-right">
+        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">لمساتك الفنية</h2>
+        <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">اختر مظهر مائدة مطعمك الرقمية بلمسة واحدة.</p>
+      </div>
+
+      <div className="space-y-6 lg:space-y-8">
+        {/* Template Switching */}
+        <div className="grid grid-cols-2 gap-3 lg:gap-5">
           {[
-            { icon: 'speed', title: 'تحميل فائق السرعة', desc: 'رابطك يعمل بسرعة البرق' },
-            { icon: 'security', title: 'تشفير SSL مجاني', desc: 'حماية عالمية المستوى' },
-          ].map((b, i) => (
-            <div key={i} className="flex items-start gap-3 p-4 bg-surface-container rounded-xl border border-outline-variant/10">
-              <span className="material-symbols-outlined text-primary text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
-              <div>
-                <p className="font-bold text-sm">{b.title}</p>
-                <p className="text-xs text-secondary leading-relaxed">{b.desc}</p>
+            { id: 'bright', name: 'النمط الكلاسيكي', icon: 'light_mode', desc: 'عصري ومنعش' },
+            { id: 'dark', name: 'النمط الفاخر', icon: 'nightlight', desc: 'كلاسيكي وأنيق' }
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setFormData({ ...formData, template: t.id })}
+              className={`p-3 rounded-2xl border-2 transition-all text-right lg:p-5 lg:rounded-[2rem] ${formData.template === t.id ? 'border-primary bg-primary/5 shadow-inner' : 'border-outline-variant/10 bg-white lg:bg-white/40 hover:border-primary/20 hover:shadow-sm'}`}
+            >
+              <div className={`w-8 h-8 rounded-lg mb-2 flex items-center justify-center lg:w-12 lg:h-12 lg:rounded-2xl lg:mb-4 ${t.id === 'dark' ? 'bg-[#1A1A1A] text-white' : 'bg-primary/10 text-primary'}`}>
+                <span className="material-symbols-outlined text-lg lg:text-2xl">{t.icon}</span>
               </div>
-            </div>
+              <div className="text-[11px] font-black lg:text-sm">{t.name}</div>
+              <div className="text-[9px] text-secondary font-medium lg:text-[11px]">{t.desc}</div>
+            </button>
           ))}
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-row-reverse items-center gap-3 pt-2">
-          <motion.button
-            onClick={onNext}
-            disabled={formData.domain.length < 3}
-            className="flex-1 bg-primary text-on-primary py-4 px-8 rounded-xl font-black flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            whileHover={{ scale: formData.domain.length < 3 ? 1 : 1.02 }}
-            whileTap={{ scale: formData.domain.length < 3 ? 1 : 0.97 }}
-          >
-            <span>التالي</span>
-            <span className="material-symbols-outlined">arrow_back</span>
-          </motion.button>
-          <button
-            onClick={onPrev}
-            className="px-6 py-4 font-bold text-secondary hover:bg-surface-container rounded-xl transition-all"
-          >
-            رجوع
-          </button>
+        {/* Dual Images */}
+        <div className="grid grid-cols-2 gap-3 lg:gap-5">
+          <div onClick={() => headRef.current?.click()} className="relative h-28 rounded-2xl border-2 border-dashed border-outline-variant/20 bg-surface-container/20 flex flex-col items-center justify-center cursor-pointer overflow-hidden group lg:h-36 lg:rounded-[2rem] lg:bg-white/40 hover:bg-white transition-colors">
+            {formData.heroImage && <img src={formData.heroImage} className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity" />}
+            <span className="material-symbols-outlined text-xl text-secondary group-hover:text-primary lg:text-3xl">add_photo_alternate</span>
+            <span className="text-[9px] font-black text-secondary mt-1 lg:text-[11px]">صورة الغلاف</span>
+            <input ref={headRef} type="file" className="hidden" onChange={e => handleUpload(e, 'heroImage')} />
+          </div>
+          <div onClick={() => logoRef.current?.click()} className="relative h-28 rounded-2xl border-2 border-dashed border-outline-variant/20 bg-surface-container/20 flex flex-col items-center justify-center cursor-pointer overflow-hidden group lg:h-36 lg:rounded-[2rem] lg:bg-white/40 hover:bg-white transition-colors">
+            {formData.logoImage ? (
+              <div className="w-12 h-12 rounded-xl overflow-hidden ring-4 ring-white shadow-lg lg:w-20 lg:h-20 lg:rounded-2xl"><img src={formData.logoImage} className="w-full h-full object-cover" /></div>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-xl text-secondary group-hover:text-primary lg:text-3xl">account_circle</span>
+                <span className="text-[9px] font-black text-secondary mt-1 lg:text-[11px]">لوجو المطعم</span>
+              </>
+            )}
+            <input ref={logoRef} type="file" className="hidden" onChange={e => handleUpload(e, 'logoImage')} />
+          </div>
         </div>
-      </motion.div>
+
+        {/* Color */}
+        <div className="flex flex-wrap gap-3 lg:gap-5 justify-center lg:justify-start">
+          {['#F03030', '#f59e0b', '#10b981', '#6366f1', '#1A1A1A'].map(c => (
+            <button
+              key={c}
+              onClick={() => setFormData({ ...formData, primaryColor: c })}
+              className={`w-9 h-9 rounded-xl border-4 transition-all lg:w-12 lg:h-12 lg:rounded-2xl ${formData.primaryColor === c ? 'border-primary ring-4 ring-primary/10 scale-110 shadow-lg shadow-primary/20' : 'border-white shadow-sm hover:scale-105'}`}
+              style={{ backgroundColor: c }}
+            >
+              {formData.primaryColor === c && <span className="material-symbols-outlined text-white text-[10px] font-black lg:text-sm">check</span>}
+            </button>
+          ))}
+          <div className="relative w-9 h-9 rounded-xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center overflow-hidden lg:w-12 lg:h-12 lg:rounded-2xl group transition-colors hover:border-primary/40">
+            <input type="color" className="absolute inset-0 opacity-0 cursor-pointer" value={formData.primaryColor} onChange={e => setFormData({ ...formData, primaryColor: e.target.value })} />
+            <span className="material-symbols-outlined text-sm text-primary lg:text-xl group-hover:scale-110 transition-transform">palette</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-4 border-t border-outline-variant/5 lg:pt-8 lg:mt-4">
+          <button onClick={handleFinish} className="w-full bg-[#1A1A1A] text-white py-4 rounded-xl font-black text-sm shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all lg:py-6 lg:text-lg lg:rounded-[2rem] hover:bg-black hover:-translate-y-1 lg:shadow-2xl">
+            <span>إطلاق مطعمي الآن</span>
+            <span className="material-symbols-outlined text-base lg:text-2xl">rocket_launch</span>
+          </button>
+          <button onClick={onPrev} className="text-[10px] font-black text-secondary/60 hover:text-primary text-center py-1 lg:text-xs">الرجوع لتعديل البيانات</button>
+        </div>
+      </div>
     </motion.div>
   );
 }
-
-/* ─── Step 3: Template ─── */
-function Step3({ formData, setFormData, handleFinish, onPrev }) {
-  return (
-    <motion.div key="step3" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: 30 }}>
-      <motion.div variants={fadeUp} className="mb-8">
-        <h2 className="text-2xl font-black text-on-surface mb-1">اختر مظهر قائمتك</h2>
-        <p className="text-secondary text-sm">خصص تجربة عملائك من خلال قالب يناسب هوية مطعمك.</p>
-      </motion.div>
-
-      <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Dark Template */}
-        <label className="cursor-pointer group">
-          <input
-            type="radio"
-            value="dark"
-            checked={formData.template === 'dark'}
-            onChange={() => setFormData({ ...formData, template: 'dark' })}
-            className="hidden peer"
-          />
-          <div className="h-full bg-surface-container-lowest rounded-2xl p-5 border-2 border-transparent peer-checked:border-primary transition-all duration-300 shadow-sm hover:-translate-y-1 peer-checked:shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.template === 'dark' ? 'bg-primary border-primary' : 'border-outline'}`}>
-                {formData.template === 'dark' && <div className="w-2 h-2 bg-white rounded-full" />}
-              </div>
-              <span className="px-2.5 py-1 bg-on-surface text-surface text-[10px] font-bold rounded-full">الأكثر فخامة</span>
-            </div>
-            <div className="rounded-xl bg-neutral-950 overflow-hidden aspect-[4/5] mb-4 flex items-center justify-center">
-              <div className="w-[85%] h-[90%] bg-[#0a0a0a] rounded-t-2xl shadow-2xl p-3 overflow-hidden">
-                <div className="w-10 h-1 bg-neutral-800 rounded-full mx-auto mb-3" />
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="w-7 h-7 rounded-full bg-primary" />
-                  <div className="space-y-1">
-                    <div className="w-14 h-1.5 bg-neutral-800 rounded" />
-                    <div className="w-20 h-1 bg-neutral-800/50 rounded" />
-                  </div>
-                </div>
-                <img className="w-full h-24 object-cover rounded-lg mb-3 opacity-80" alt="dark template" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzHvWR02Id0mFJQxJ7k5kP96B5Oa-vVixknVLNawM_iGM40ijLO1uQAssdSc8ptjFhZr_XWSEjfmVYmLLghdg_y793PtAy2YO0fBKrHosXmg4kiJpgQxW08gc-Ysc6Ig6j3RluF-kFuUOHlt24i50dn8wJonpzERGllGsj_SO0JSsMlDsFnoQOKdYsM44srUM2wWuziG17aaKHICsapMsMwpxePy5L1y3uYQb-nXwQgeArkIZneEaMPuSeeNCHv2k7O8zI1-33Tv-B" />
-                <div className="space-y-2">
-                  <div className="w-full h-2 bg-neutral-800 rounded" />
-                  <div className="w-2/3 h-2 bg-neutral-800 rounded" />
-                  <div className="w-1/3 h-3 bg-primary/20 rounded mt-1" />
-                </div>
-              </div>
-            </div>
-            <h3 className="text-base font-bold mb-1">قالب الأناقة الداكن</h3>
-            <p className="text-xs text-secondary leading-relaxed">تصميم راقٍ يعتمد التباين العالي لإبراز تفاصيل أطباقك الفاخرة.</p>
-          </div>
-        </label>
-
-        {/* Bright Template */}
-        <label className="cursor-pointer group">
-          <input
-            type="radio"
-            value="bright"
-            checked={formData.template === 'bright'}
-            onChange={() => setFormData({ ...formData, template: 'bright' })}
-            className="hidden peer"
-          />
-          <div className="h-full bg-surface-container-lowest rounded-2xl p-5 border-2 border-transparent peer-checked:border-primary transition-all duration-300 shadow-sm hover:-translate-y-1 peer-checked:shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.template === 'bright' ? 'bg-primary border-primary' : 'border-outline'}`}>
-                {formData.template === 'bright' && <div className="w-2 h-2 bg-white rounded-full" />}
-              </div>
-              <span className="px-2.5 py-1 bg-primary text-on-primary text-[10px] font-bold rounded-full">الأكثر شعبية</span>
-            </div>
-            <div className="rounded-xl bg-surface-container overflow-hidden aspect-[4/5] mb-4 flex items-center justify-center">
-              <div className="w-[85%] h-[90%] bg-white rounded-t-2xl shadow-2xl p-3 overflow-hidden">
-                <div className="w-10 h-1 bg-neutral-200 rounded-full mx-auto mb-3" />
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="w-7 h-7 rounded-full bg-primary" />
-                  <div className="space-y-1">
-                    <div className="w-14 h-1.5 bg-neutral-200 rounded" />
-                    <div className="w-20 h-1 bg-neutral-100 rounded" />
-                  </div>
-                </div>
-                <img className="w-full h-24 object-cover rounded-lg mb-3" alt="bright template" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF4ocMTFw-nyVsADC9kJTilK-ZZns164MrYniNuuyf10aYM_OC2OxS7y4sqBymKJTAz81KGq10iPE-UU3pR1vcEVLHYEpxGU3Y97W1-7q7lwPFakaaG8LO7xfvFY_9jjNGhLViIICaP8YZrrQyzlEYp8FPktNkbrzvHGOfrb-_IoQaFUhjB1i24hxPCBKSoeGmK4BDDFdZ-PLIV_fakhtfvwGE8Es7tOOf1XiDJtdULEUU6m4VupSytPiRKYf1k_laNw9nTuDavIUZ" />
-                <div className="space-y-2">
-                  <div className="w-full h-2 bg-neutral-100 rounded" />
-                  <div className="w-2/3 h-2 bg-neutral-100 rounded" />
-                  <div className="w-1/3 h-3 bg-primary/10 rounded mt-1" />
-                </div>
-              </div>
-            </div>
-            <h3 className="text-base font-bold mb-1">قالب الحداثة المشرق</h3>
-            <p className="text-xs text-secondary leading-relaxed">نظيف، عصري، وسهل التصفح. مثالي للمقاهي والمطاعم السريعة.</p>
-          </div>
-        </label>
-      </motion.div>
-
-      <motion.div variants={fadeUp} className="mt-8 flex flex-col items-center gap-3">
-        <motion.button
-          onClick={handleFinish}
-          className="w-full max-w-sm bg-primary text-on-primary py-4 rounded-xl text-lg font-black shadow-xl flex items-center justify-center gap-3"
-          whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(0,0,0,0.18)" }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <span>إنهاء وابدأ الآن</span>
-          <span className="material-symbols-outlined">rocket_launch</span>
-        </motion.button>
-        <button
-          onClick={onPrev}
-          className="text-secondary font-medium hover:text-on-surface transition-colors flex items-center gap-1.5 text-sm"
-        >
-          <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          <span>العودة للخطوة السابقة</span>
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-/* ─── Step indicator ─── */
-const steps = [
-  { label: 'معلومات المطعم', icon: 'storefront' },
-  { label: 'رابط الموقع', icon: 'language' },
-  { label: 'قالب المنيو', icon: 'dashboard_customize' },
-];
 
 /* ─── Main Page ─── */
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [mode, setMode] = useState('edit');
+
   const [formData, setFormData] = useState({
-    name: '', owner: '', phone: '', whatsapp: '', password: '', domain: '', template: 'bright',
+    name: '', owner: '', phone: '', password: '', domain: '', template: 'bright',
+    primaryColor: '#F03030', heroImage: '', logoImage: ''
   });
 
   const nextStep = () => setStep(p => Math.min(p + 1, 3));
   const prevStep = () => setStep(p => Math.max(p - 1, 1));
-
   const handleFinish = () => navigate('/admin');
-
-  const progressPct = ((step - 1) / 2) * 100;
 
   return (
     <PageTransition>
-      <div className="bg-background text-on-surface min-h-screen flex flex-col antialiased" dir="rtl">
+      <div className="bg-[#FBFCFD] text-on-surface min-h-screen flex flex-col antialiased font-tajawal relative overflow-hidden lg:bg-[#F2F4F7]" dir="rtl">
 
-        {/* ── Navbar ── */}
-        <motion.nav
-          className="fixed top-0 w-full z-50 glass-nav shadow-sm"
-          initial={{ y: -70, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex items-center justify-between px-6 py-4 w-full max-w-7xl mx-auto">
-            <Logo size="xl" lightBg />
-            <div className="hidden md:flex items-center gap-2">
-              {steps.map((s, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <button
-                    onClick={() => setStep(i + 1)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      step === i + 1
-                        ? 'bg-primary text-on-primary'
-                        : step > i + 1
-                        ? 'text-primary'
-                        : 'text-secondary'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-sm" style={step >= i + 1 ? { fontVariationSettings: "'FILL' 1" } : {}}>
-                      {step > i + 1 ? 'check_circle' : s.icon}
-                    </span>
-                    <span>{s.label}</span>
-                  </button>
-                  {i < 2 && <span className="text-outline/40 text-xs">›</span>}
-                </div>
-              ))}
-            </div>
-            <Link
-              to="/login"
-              className="text-sm font-bold text-secondary hover:text-primary transition-colors"
-            >
-              لديك حساب؟ <span className="text-primary">سجل الدخول</span>
-            </Link>
-          </div>
-        </motion.nav>
-
-        {/* Progress bar */}
-        <div className="fixed top-[65px] w-full z-40 h-1 bg-outline-variant/10">
-          <motion.div
-            className="h-full bg-primary rounded-full"
-            animate={{ width: `${progressPct === 0 ? 5 : progressPct}%` }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          />
+        {/* ── Desktop Background Assets ── */}
+        <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
+           {/* Decorative Blobs */}
+           <motion.div 
+             animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+             className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" 
+           />
+           <motion.div 
+             animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
+             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+             className="absolute bottom-0 -right-24 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[140px]" 
+           />
+           {/* Grid Pattern */}
+           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#1A1A1A 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         </div>
 
-        {/* ── Main ── */}
-        <main className="flex-grow flex items-start justify-center pt-28 pb-16 px-4 relative overflow-hidden">
-          {/* Decorative blobs */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 pointer-events-none" />
-
-          <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start z-10">
-
-            {/* ── Sidebar ── */}
-            <aside className="hidden lg:block lg:col-span-3 sticky top-28">
-              <div className="bg-primary rounded-2xl p-6 shadow-xl relative overflow-hidden text-on-primary">
-                <div className="absolute top-0 left-0 w-28 h-28 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 right-0 w-20 h-20 bg-white/5 rounded-full translate-x-1/2 translate-y-1/2" />
-                <div className="relative z-10">
-                  <h2 className="text-lg font-black mb-1">إعداد الحساب</h2>
-                  <p className="text-sm text-white/70 mb-6">خطوة {step} من 3</p>
-
-                  {/* Progress ring visual */}
-                  <div className="w-full bg-white/10 rounded-full h-1.5 mb-6">
-                    <motion.div
-                      className="h-full bg-white rounded-full"
-                      animate={{ width: `${((step - 1) / 2 + 0.5 / 3) * 100}%` }}
-                      transition={{ duration: 0.4 }}
-                      style={{ width: `${(step / 3) * 100}%` }}
-                    />
-                  </div>
-
-                  <nav className="space-y-2">
-                    {steps.map((s, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setStep(i + 1)}
-                        className={`w-full flex flex-row-reverse items-center justify-end gap-3 rounded-xl p-3 transition-all text-right ${
-                          step === i + 1
-                            ? 'bg-white/20 font-bold shadow-sm'
-                            : step > i + 1
-                            ? 'text-white/90 hover:bg-white/10'
-                            : 'text-white/50 hover:bg-white/5'
-                        }`}
-                      >
-                        <span className="text-sm">{s.label}</span>
-                        <span
-                          className="material-symbols-outlined text-xl"
-                          style={step >= i + 1 ? { fontVariationSettings: "'FILL' 1" } : {}}
-                        >
-                          {step > i + 1 ? 'check_circle' : s.icon}
-                        </span>
-                      </button>
-                    ))}
-                  </nav>
-                </div>
-              </div>
-
-              {/* Help card */}
-              <div className="mt-4 bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/10 shadow-sm">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
-                  <span className="font-bold text-sm">هل تحتاج مساعدة؟</span>
-                </div>
-                <p className="text-xs text-secondary leading-relaxed mb-3">فريق الدعم متاح على مدار الساعة لمساعدتك في إعداد حسابك.</p>
-                <a href="#" className="text-xs font-bold text-primary hover:underline underline-offset-4">تحدث معنا الآن →</a>
-              </div>
-            </aside>
-
-            {/* ── Steps Content ── */}
-            <section className="col-span-1 lg:col-span-9">
-              {/* Mobile step header */}
-              <div className="lg:hidden mb-6 bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/10 shadow-sm">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold text-sm text-on-surface">{steps[step - 1].label}</span>
-                  <span className="text-primary font-bold text-sm">{step} / 3</span>
-                </div>
-                <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary rounded-full"
-                    animate={{ width: `${(step / 3) * 100}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
-              </div>
-
-              {/* Card wrapper */}
-              <div className="bg-surface-container-lowest rounded-3xl shadow-xl border border-outline-variant/10 overflow-hidden">
-                <div className="h-1.5 bg-gradient-to-l from-primary via-primary-container to-primary" />
-                <div className="p-8 md:p-10">
-                  <AnimatePresence mode="wait">
-                    {step === 1 && (
-                      <Step1 key="s1" formData={formData} setFormData={setFormData} onNext={nextStep} />
-                    )}
-                    {step === 2 && (
-                      <Step2 key="s2" formData={formData} setFormData={setFormData} onNext={nextStep} onPrev={prevStep} />
-                    )}
-                    {step === 3 && (
-                      <Step3 key="s3" formData={formData} setFormData={setFormData} handleFinish={handleFinish} onPrev={prevStep} />
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </section>
+        {/* Compact Mobile Top Indicator */}
+        <header className="lg:hidden sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-outline-variant/5 px-6 py-3 flex justify-between items-center text-on-surface">
+          <Logo size="md" lightBg />
+          <div className="flex gap-1.5 items-center">
+            {[1, 2, 3].map(i => (
+              <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? 'bg-primary w-6' : 'bg-outline-variant/20 w-3'}`} />
+            ))}
           </div>
+        </header>
+
+        <main className="flex-grow flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-4 pt-8 lg:pt-0 lg:px-12 relative z-10 lg:items-center lg:justify-center">
+
+          {/* Sidebar (Desktop) */}
+          <aside className="hidden lg:block w-72 flex-shrink-0 ml-16">
+            <div className="bg-[#1A1A1A] rounded-[2.5rem] p-10 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] text-white relative overflow-hidden group">
+              {/* Subtle Internal Glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors" />
+              
+              <div className="mb-12 relative z-10">
+                <Logo size="xl" />
+                <p className="text-[11px] font-black text-white/30 tracking-widest uppercase mt-3">إنشاء هوية مطعمك</p>
+              </div>
+
+              <nav className="space-y-12 relative z-10">
+                {[
+                  { l: 'المعلومات', i: 'storefront', d: 'البيانات الشخصية' },
+                  { l: 'الرابط', i: 'language', d: 'هويتك الرقمية' },
+                  { l: 'التصميم', i: 'dashboard_customize', d: 'مظهر المنيو' }
+                ].map((s, i) => (
+                  <div key={i} className={`flex items-start gap-5 transition-all duration-700 ${step === i + 1 ? 'opacity-100 scale-105' : 'opacity-20 translate-x-2'}`}>
+                    <div className="relative">
+                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs transition-all duration-500 ${step >= i + 1 ? 'bg-primary text-white shadow-[0_10px_20px_rgba(240,48,48,0.3)]' : 'bg-white/10'}`}>
+                         {step > i + 1 ? <span className="material-symbols-outlined text-lg">check</span> : i + 1}
+                       </div>
+                       {/* Connecting Line */}
+                       {i < 2 && (
+                         <div className={`absolute top-14 right-1/2 translate-x-1/2 w-[2px] h-10 transition-colors duration-500 ${step > i + 1 ? 'bg-primary/50' : 'bg-white/5'}`} />
+                       )}
+                    </div>
+                    <div className="pt-1.5">
+                       <div className="text-sm font-black tracking-tight">{s.l}</div>
+                       <div className="text-[10px] font-medium text-white/30 mt-0.5">{s.d}</div>
+                    </div>
+                  </div>
+                ))}
+              </nav>
+              
+              <div className="mt-16 pt-10 border-t border-white/5 relative z-10">
+                 <div className="flex items-center gap-3 opacity-40">
+                    <span className="material-symbols-outlined text-sm">verified_user</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">نظام آمن وموثوق</span>
+                 </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Form */}
+          <section className={`flex-1 flex flex-col items-center transition-all duration-700 ${mode === 'edit' ? 'opacity-100' : 'opacity-0 lg:opacity-100'} lg:max-w-xl`}>
+            <div className="w-full bg-white lg:bg-white/70 lg:backdrop-blur-3xl lg:border lg:border-white/50 rounded-[2.5rem] p-8 md:p-10 lg:p-14 lg:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] lg:rounded-[3.5rem]">
+              <AnimatePresence mode="wait">
+                {step === 1 && <Step1 formData={formData} setFormData={setFormData} onNext={nextStep} />}
+                {step === 2 && <Step2 formData={formData} setFormData={setFormData} onNext={nextStep} onPrev={prevStep} />}
+                {step === 3 && <Step3 formData={formData} setFormData={setFormData} handleFinish={handleFinish} onPrev={prevStep} />}
+              </AnimatePresence>
+            </div>
+            <div className="h-24 lg:hidden" />
+          </section>
+
+          {/* Mockup */}
+          <AnimatePresence>
+            {step === 3 && (
+              <motion.div
+                initial={{ opacity: 0, x: 100, rotate: 10 }} 
+                animate={{ opacity: 1, x: 0, rotate: 0 }} 
+                exit={{ opacity: 0, x: 100, rotate: 10 }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className={`lg:w-[400px] flex-shrink-0 flex items-center justify-center lg:mr-16 ${mode === 'preview' ? 'fixed inset-0 z-[60] bg-white lg:relative lg:bg-transparent' : 'hidden lg:flex'}`}
+              >
+                <DeviceMockup formData={formData} />
+                <button onClick={() => setMode('edit')} className="lg:hidden absolute top-8 right-8 text-on-surface"><span className="material-symbols-outlined text-3xl">close</span></button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
 
-        {/* ── Footer ── */}
-        <footer className="py-6 border-t border-outline-variant/10 bg-surface-container-low">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row-reverse items-center justify-between gap-4">
-            <p className="text-xs uppercase tracking-widest text-secondary">© 2026 OrderIt. جميع الحقوق محفوظة.</p>
-            <div className="flex gap-6">
-              <a className="text-xs uppercase tracking-widest text-secondary hover:text-primary transition-colors" href="#">سياسة الخصوصية</a>
-              <a className="text-xs uppercase tracking-widest text-secondary hover:text-primary transition-colors" href="#">شروط الخدمة</a>
+        {/* Mobile Tab bar - only in step 3 */}
+        {step === 3 && (
+          <div className="lg:hidden fixed bottom-6 left-6 right-6 z-[100]">
+            <div className="bg-[#1A1A1A]/95 backdrop-blur-xl rounded-full p-1.5 shadow-2xl flex ring-1 ring-white/10">
+              <button onClick={() => setMode('edit')} className={`flex-1 py-3 px-6 rounded-full text-[11px] font-black transition-all ${mode === 'edit' ? 'bg-white text-[#1A1A1A]' : 'text-white'}`}>التعديل</button>
+              <button onClick={() => setMode('preview')} className={`flex-1 py-3 px-6 rounded-full text-[11px] font-black transition-all ${mode === 'preview' ? 'bg-white text-[#1A1A1A]' : 'text-white'}`}>المعاينة</button>
             </div>
           </div>
-        </footer>
+        )}
+
       </div>
     </PageTransition>
   );
