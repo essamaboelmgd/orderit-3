@@ -1,59 +1,77 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+import api from '../api/axios';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Try to load user from localStorage for persistence during dev reload
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('orderit_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('orderit_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('orderit_user');
-    }
-  }, [user]);
+    checkAuth();
+  }, []);
 
-  const login = (credentials) => {
-    // Demo credentials — phone-based login (Egyptian numbers)
-    if (credentials.phone === '01000000000' && credentials.password === 'super123') {
-      const u = { id: 'super1', name: 'SuperAdmin', role: 'superadmin', restaurantId: null, restaurantName: null };
-      setUser(u);
-      return { success: true, role: 'superadmin' };
+  const checkAuth = async () => {
+    setLoading(true);
+    const token = Cookies.get('access_token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        
+        // Ensure token is not expired
+        if (decoded.exp * 1000 < Date.now()) {
+          logout();
+          setLoading(false);
+          return;
+        }
+
+        let role = decoded.type === 'owner' ? 'admin' : decoded.type;
+        let staffType = null;
+        
+        if (['manager', 'cashier', 'waiter', 'kitchen'].includes(role)) {
+          staffType = role;
+          role = 'staff';
+        }
+        
+        if (role === 'admin') {
+          try {
+            const res = await api.get(`/menu/restaurants?owner_id=${decoded.sub}`);
+            const rest = res.data && res.data.length > 0 ? res.data[0] : null;
+            setUser({ 
+              id: decoded.sub, 
+              role, 
+              restaurantId: rest?.id, 
+              restaurantName: rest?.name_ar || rest?.name_en 
+            });
+          } catch (e) {
+            console.error("Failed to fetch restaurant", e);
+            setUser({ id: decoded.sub, role });
+          }
+        } else if (role === 'staff') {
+          setUser({ id: decoded.sub, role, staffType });
+        } else {
+          setUser({ id: decoded.sub, role });
+        }
+      } catch (e) {
+        console.error("Invalid token", e);
+        logout();
+      }
+    } else {
+      setUser(null);
     }
-    if (credentials.phone === '01012345678' && credentials.password === 'admin123') {
-      const u = { id: 'admin1', name: 'مدير الساكورا', role: 'admin', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
-      setUser(u);
-      return { success: true, role: 'admin' };
-    }
-    // Fallback: also accept legacy email field passed as phone for compatibility
-    if ((credentials.email === '01000000000' || credentials.phone === '01000000000') && credentials.password === 'super123') {
-      const u = { id: 'super1', name: 'SuperAdmin', role: 'superadmin', restaurantId: null, restaurantName: null };
-      setUser(u);
-      return { success: true, role: 'superadmin' };
-    }
-    if ((credentials.email === '01012345678' || credentials.phone === '01012345678') && credentials.password === 'admin123') {
-      const u = { id: 'admin1', name: 'مدير الساكورا', role: 'admin', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
-      setUser(u);
-      return { success: true, role: 'admin' };
-    }
-    if (credentials.pin === '1234') {
-      const u = { id: 'staff1', name: 'موظف المطعم', role: 'staff', restaurantId: 'sakura-123', restaurantName: 'Sakura' };
-      setUser(u);
-      return { success: true, role: 'staff' };
-    }
-    return { success: false, message: 'رقم الهاتف أو كلمة المرور غير صحيحة' };
+    setLoading(false);
   };
 
   const logout = () => {
+    Cookies.remove('access_token');
+    Cookies.remove('refresh_token');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, checkAuth, logout, isAuthenticated: !!user, loading }}>
       {children}
     </AuthContext.Provider>
   );

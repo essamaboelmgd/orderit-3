@@ -3,6 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
 import Logo from '../components/Logo';
+import api from '../api/axios';
+import Cookies from 'js-cookie';
+import { useAuth } from '../context/AuthContext';
 
 // Animation Constants
 const fadeUp = {
@@ -141,15 +144,21 @@ function Step1({ formData, setFormData, onNext }) {
   return (
     <motion.div key="step1" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
       <div className="mb-6 lg:mb-10">
-        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">ابدأ رحلتك</h2>
+        <h2 className="text-2xl font-black text-on-surface mb-1 font-cairo tracking-tight lg:text-4xl lg:mb-4">ابدأ رحلتك</h2>
         <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">خطوات بسيطة لتنضم لآلاف المطاعم الناجحة.</p>
       </div>
       <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="space-y-4 lg:space-y-6">
-        <Field label="اسم المطعم" icon="storefront">
+        <Field label="اسم المطعم (عربي)" icon="storefront">
           <input type="text" className={inputClass} placeholder="مثال: شاورما السلطان" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+        </Field>
+        <Field label="اسم المطعم (انجليزي)" icon="storefront">
+          <input type="text" dir="ltr" className={inputClass} placeholder="Shawarma Sultan" value={formData.nameEn} onChange={e => setFormData({ ...formData, nameEn: e.target.value })} required />
         </Field>
         <Field label="اسم المالك" icon="person">
           <input type="text" className={inputClass} placeholder="ادخل اسمك الكامل" value={formData.owner} onChange={e => setFormData({ ...formData, owner: e.target.value })} required />
+        </Field>
+        <Field label="البريد الإلكتروني" icon="mail">
+          <input type="email" dir="ltr" className={inputClass} placeholder="user@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
         </Field>
         <Field label="رقم الجوال" icon="call">
           <input type="tel" dir="ltr" className={inputClass} placeholder="01X XXXX XXXX" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
@@ -171,74 +180,7 @@ function Step1({ formData, setFormData, onNext }) {
   );
 }
 
-function Step2({ formData, setFormData, onNext, onPrev }) {
-  const preview = formData.domain || 'your-restaurant';
-  return (
-    <motion.div key="step2" variants={stagger} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
-      <div className="mb-6 lg:mb-10">
-        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">رابط موقعك</h2>
-        <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">هذا هو العنوان الذي سيستخدمه عملاؤك للطلب.</p>
-      </div>
-
-      <div className="space-y-6 lg:space-y-8">
-        <Field label="عنوان الموقع الرقمي" icon="language">
-          <div className="relative flex flex-row items-stretch overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container/30 focus-within:border-primary transition-colors lg:rounded-2xl lg:bg-white/50" dir="ltr">
-            <input
-              type="text"
-              className="flex-1 bg-transparent border-none text-left px-4 py-4 text-sm font-black text-primary outline-none placeholder:text-outline/30 lg:text-lg"
-              placeholder="my-restaurant"
-              value={formData.domain}
-              onChange={e => setFormData({ ...formData, domain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-            />
-            <div className="bg-surface-container flex items-center px-4 text-xs font-black text-secondary/40 border-l border-outline-variant/10 lg:text-sm lg:bg-gray-50/50">.orderit.com</div>
-          </div>
-        </Field>
-
-        <div className="bg-surface-container/20 rounded-2xl p-4 border border-outline-variant/5 lg:p-6 lg:bg-white/40 lg:backdrop-blur-md lg:shadow-sm">
-          <div className="flex items-center gap-2 mb-3 text-secondary/60 lg:mb-4">
-            <span className="material-symbols-outlined text-xs lg:text-sm">browser_updated</span>
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none lg:text-[11px]">معاينة المتصفح</span>
-          </div>
-          <div className="bg-white rounded-xl shadow-md border border-outline-variant/5 overflow-hidden lg:rounded-2xl">
-            <div className="h-6 bg-gray-50 flex items-center px-3 gap-1.5 border-b border-gray-100 lg:h-8" dir="ltr">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-400 opacity-40 lg:w-2 lg:h-2" />
-              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-40 lg:w-2 lg:h-2" />
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400 opacity-40 lg:w-2 lg:h-2" />
-              <div className="flex-1 max-w-[120px] mx-auto bg-white rounded-full h-3.5 flex items-center justify-center text-[7px] text-secondary/30 scale-x-[-1] overflow-hidden lg:max-w-[160px] lg:h-4.5 lg:text-[9px]">
-                <span className="material-symbols-outlined text-[7px] mr-1 lg:text-[9px]">lock</span>
-                {preview}.orderit.com
-              </div>
-            </div>
-            <div className="h-16 relative lg:h-24">
-              <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=500&q=80" className="w-full h-full object-cover opacity-10" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 lg:gap-4">
-          <div className="bg-white p-3 rounded-xl border border-outline-variant/10 flex items-center gap-3 lg:p-4 lg:rounded-2xl lg:shadow-sm lg:hover:shadow-md transition-shadow">
-            <span className="material-symbols-outlined text-primary text-lg lg:text-2xl">bolt</span>
-            <div className="text-[9px] font-black text-on-surface uppercase lg:text-[10px]">فائق السرعة</div>
-          </div>
-          <div className="bg-white p-3 rounded-xl border border-outline-variant/10 flex items-center gap-3 lg:p-4 lg:rounded-2xl lg:shadow-sm lg:hover:shadow-md transition-shadow">
-            <span className="material-symbols-outlined text-primary text-lg lg:text-2xl">verified_user</span>
-            <div className="text-[9px] font-black text-on-surface uppercase lg:text-[10px]">SSL مجاني</div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 pt-2 lg:pt-4">
-          <button onClick={onNext} disabled={formData.domain.length < 3} className="w-full bg-primary text-white py-4 rounded-xl font-black text-sm shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 lg:py-5 lg:text-base lg:rounded-2xl">
-            <span>الخطوة التالية: تصميم المنيو</span>
-            <span className="material-symbols-outlined text-base lg:text-xl">arrow_back</span>
-          </button>
-          <button onClick={onPrev} className="text-[10px] font-black text-secondary/60 hover:text-primary transition-colors text-center py-1 lg:text-xs">الرجوع للخطوة الأولى</button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function Step3({ formData, setFormData, handleFinish, onPrev }) {
+function Step2({ formData, setFormData, handleFinish, onPrev, loading, templatesList }) {
   const headRef = useRef(null);
   const logoRef = useRef(null);
   const handleUpload = (e, key) => {
@@ -247,31 +189,33 @@ function Step3({ formData, setFormData, handleFinish, onPrev }) {
   };
 
   return (
-    <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
+    <motion.div key="step2" variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }} className="lg:py-4">
       <div className="mb-6 lg:mb-10 text-center lg:text-right">
-        <h2 className="text-2xl font-black text-on-surface mb-1 font-tajawal tracking-tight lg:text-4xl lg:mb-4">لمساتك الفنية</h2>
+        <h2 className="text-2xl font-black text-on-surface mb-1 font-cairo tracking-tight lg:text-4xl lg:mb-4">لمساتك الفنية</h2>
         <p className="text-secondary text-xs font-medium lg:text-base lg:text-secondary/70">اختر مظهر مائدة مطعمك الرقمية بلمسة واحدة.</p>
       </div>
 
       <div className="space-y-6 lg:space-y-8">
         {/* Template Switching */}
         <div className="grid grid-cols-2 gap-3 lg:gap-5">
-          {[
-            { id: 'bright', name: 'النمط الكلاسيكي', icon: 'light_mode', desc: 'عصري ومنعش' },
-            { id: 'dark', name: 'النمط الفاخر', icon: 'nightlight', desc: 'كلاسيكي وأنيق' }
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setFormData({ ...formData, template: t.id })}
-              className={`p-3 rounded-2xl border-2 transition-all text-right lg:p-5 lg:rounded-[2rem] ${formData.template === t.id ? 'border-primary bg-primary/5 shadow-inner' : 'border-outline-variant/10 bg-white lg:bg-white/40 hover:border-primary/20 hover:shadow-sm'}`}
-            >
-              <div className={`w-8 h-8 rounded-lg mb-2 flex items-center justify-center lg:w-12 lg:h-12 lg:rounded-2xl lg:mb-4 ${t.id === 'dark' ? 'bg-[#1A1A1A] text-white' : 'bg-primary/10 text-primary'}`}>
-                <span className="material-symbols-outlined text-lg lg:text-2xl">{t.icon}</span>
-              </div>
-              <div className="text-[11px] font-black lg:text-sm">{t.name}</div>
-              <div className="text-[9px] text-secondary font-medium lg:text-[11px]">{t.desc}</div>
-            </button>
-          ))}
+          {templatesList.length > 0 ? templatesList.map((t, idx) => {
+            const isDark = t.key === 'dark' || t.name?.toLowerCase().includes('dark');
+            return (
+              <button
+                key={t.id}
+                onClick={() => setFormData({ ...formData, template: t.id })}
+                className={`p-3 rounded-2xl border-2 transition-all text-right lg:p-5 lg:rounded-[2rem] ${formData.template === t.id ? 'border-primary bg-primary/5 shadow-inner' : 'border-outline-variant/10 bg-white lg:bg-white/40 hover:border-primary/20 hover:shadow-sm'}`}
+              >
+                <div className={`w-8 h-8 rounded-lg mb-2 flex items-center justify-center lg:w-12 lg:h-12 lg:rounded-2xl lg:mb-4 ${isDark ? 'bg-[#1A1A1A] text-white' : 'bg-primary/10 text-primary'}`}>
+                  <span className="material-symbols-outlined text-lg lg:text-2xl">{isDark ? 'nightlight' : 'light_mode'}</span>
+                </div>
+                <div className="text-[11px] font-black lg:text-sm">{t.name}</div>
+                <div className="text-[9px] text-secondary font-medium lg:text-[11px] line-clamp-1">{t.description || 'نمط جديد للمنيو'}</div>
+              </button>
+            );
+          }) : (
+            <div className="col-span-2 text-center text-sm text-secondary p-4 bg-surface-container rounded-xl">جاري تحميل القوالب...</div>
+          )}
         </div>
 
         {/* Dual Images */}
@@ -314,9 +258,15 @@ function Step3({ formData, setFormData, handleFinish, onPrev }) {
         </div>
 
         <div className="flex flex-col gap-3 pt-4 border-t border-outline-variant/5 lg:pt-8 lg:mt-4">
-          <button onClick={handleFinish} className="w-full bg-[#1A1A1A] text-white py-4 rounded-xl font-black text-sm shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all lg:py-6 lg:text-lg lg:rounded-[2rem] hover:bg-black hover:-translate-y-1 lg:shadow-2xl">
-            <span>إطلاق مطعمي الآن</span>
-            <span className="material-symbols-outlined text-base lg:text-2xl">rocket_launch</span>
+          <button disabled={loading} onClick={handleFinish} className="w-full bg-[#1A1A1A] text-white py-4 rounded-xl font-black text-sm shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all lg:py-6 lg:text-lg lg:rounded-[2rem] hover:bg-black hover:-translate-y-1 lg:shadow-2xl disabled:opacity-70 disabled:transform-none">
+            {loading ? (
+              <span>جاري الإنشاء...</span>
+            ) : (
+              <>
+                <span>إطلاق مطعمي الآن</span>
+                <span className="material-symbols-outlined text-base lg:text-2xl">rocket_launch</span>
+              </>
+            )}
           </button>
           <button onClick={onPrev} className="text-[10px] font-black text-secondary/60 hover:text-primary text-center py-1 lg:text-xs">الرجوع لتعديل البيانات</button>
         </div>
@@ -325,24 +275,74 @@ function Step3({ formData, setFormData, handleFinish, onPrev }) {
   );
 }
 
-/* ─── Main Page ─── */
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { checkAuth } = useAuth();
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState('edit');
+  const [loading, setLoading] = useState(false);
+  const [templatesList, setTemplatesList] = useState([]);
 
   const [formData, setFormData] = useState({
-    name: '', owner: '', phone: '', password: '', domain: '', template: 'bright',
+    name: '', nameEn: '', owner: '', phone: '', email: '', password: '', template: '',
     primaryColor: '#F03030', heroImage: '', logoImage: ''
   });
 
-  const nextStep = () => setStep(p => Math.min(p + 1, 3));
+  // Fetch Templates
+  React.useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const res = await api.get('/templates/?only_active=true');
+        if (res.data && Array.isArray(res.data)) {
+          setTemplatesList(res.data);
+          if (res.data.length > 0) {
+            setFormData(prev => ({ ...prev, template: res.data[0].id }));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching templates", error);
+      }
+    };
+    fetchTemplates();
+  }, []);
+
+  const nextStep = () => setStep(p => Math.min(p + 1, 2));
   const prevStep = () => setStep(p => Math.max(p - 1, 1));
-  const handleFinish = () => navigate('/admin');
+  
+  const handleFinish = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        owner_name: formData.owner,
+        email: formData.email,
+        password: formData.password,
+        restaurant_name_en: formData.nameEn,
+        restaurant_name_ar: formData.name,
+        restaurant_phone: formData.phone,
+        template_id: formData.template
+      };
+
+      const res = await api.post('/auth/register-restaurant', payload);
+      const { access_token, refresh_token } = res.data;
+      
+      Cookies.set('access_token', access_token, { expires: 7 }); // Default to 7 days for registration
+      if (refresh_token) {
+        Cookies.set('refresh_token', refresh_token, { expires: 30 });
+      }
+      
+      await checkAuth();
+      navigate('/admin');
+    } catch (error) {
+      console.error("Registration error", error);
+      alert(error.response?.data?.detail?.[0]?.msg || error.response?.data?.detail || "حدث خطأ أثناء التسجيل. يرجى التأكد من البيانات والمحاولة مرة أخرى.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageTransition>
-      <div className="bg-[#FBFCFD] text-on-surface min-h-screen flex flex-col antialiased font-tajawal relative overflow-hidden lg:bg-[#F2F4F7]" dir="rtl">
+      <div className="bg-[#FBFCFD] text-on-surface min-h-screen flex flex-col antialiased font-cairo relative overflow-hidden lg:bg-[#F2F4F7]" dir="rtl">
 
         {/* ── Desktop Background Assets ── */}
         <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
@@ -365,7 +365,7 @@ export default function RegisterPage() {
         <header className="lg:hidden sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-outline-variant/5 px-6 py-3 flex justify-between items-center text-on-surface">
           <Logo size="md" lightBg />
           <div className="flex gap-1.5 items-center">
-            {[1, 2, 3].map(i => (
+            {[1, 2].map(i => (
               <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? 'bg-primary w-6' : 'bg-outline-variant/20 w-3'}`} />
             ))}
           </div>
@@ -387,7 +387,6 @@ export default function RegisterPage() {
               <nav className="space-y-12 relative z-10">
                 {[
                   { l: 'المعلومات', i: 'storefront', d: 'البيانات الشخصية' },
-                  { l: 'الرابط', i: 'language', d: 'هويتك الرقمية' },
                   { l: 'التصميم', i: 'dashboard_customize', d: 'مظهر المنيو' }
                 ].map((s, i) => (
                   <div key={i} className={`flex items-start gap-5 transition-all duration-700 ${step === i + 1 ? 'opacity-100 scale-105' : 'opacity-20 translate-x-2'}`}>
@@ -396,7 +395,7 @@ export default function RegisterPage() {
                          {step > i + 1 ? <span className="material-symbols-outlined text-lg">check</span> : i + 1}
                        </div>
                        {/* Connecting Line */}
-                       {i < 2 && (
+                       {i < 1 && (
                          <div className={`absolute top-14 right-1/2 translate-x-1/2 w-[2px] h-10 transition-colors duration-500 ${step > i + 1 ? 'bg-primary/50' : 'bg-white/5'}`} />
                        )}
                     </div>
@@ -422,8 +421,7 @@ export default function RegisterPage() {
             <div className="w-full bg-white lg:bg-white/70 lg:backdrop-blur-3xl lg:border lg:border-white/50 rounded-[2.5rem] p-8 md:p-10 lg:p-14 lg:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] lg:rounded-[3.5rem]">
               <AnimatePresence mode="wait">
                 {step === 1 && <Step1 formData={formData} setFormData={setFormData} onNext={nextStep} />}
-                {step === 2 && <Step2 formData={formData} setFormData={setFormData} onNext={nextStep} onPrev={prevStep} />}
-                {step === 3 && <Step3 formData={formData} setFormData={setFormData} handleFinish={handleFinish} onPrev={prevStep} />}
+                {step === 2 && <Step2 formData={formData} setFormData={setFormData} handleFinish={handleFinish} onPrev={prevStep} loading={loading} templatesList={templatesList} />}
               </AnimatePresence>
             </div>
             <div className="h-24 lg:hidden" />
@@ -431,7 +429,7 @@ export default function RegisterPage() {
 
           {/* Mockup */}
           <AnimatePresence>
-            {step === 3 && (
+            {step === 2 && (
               <motion.div
                 initial={{ opacity: 0, x: 100, rotate: 10 }} 
                 animate={{ opacity: 1, x: 0, rotate: 0 }} 
@@ -446,8 +444,8 @@ export default function RegisterPage() {
           </AnimatePresence>
         </main>
 
-        {/* Mobile Tab bar - only in step 3 */}
-        {step === 3 && (
+        {/* Mobile Tab bar - only in step 2 */}
+        {step === 2 && (
           <div className="lg:hidden fixed bottom-6 left-6 right-6 z-[100]">
             <div className="bg-[#1A1A1A]/95 backdrop-blur-xl rounded-full p-1.5 shadow-2xl flex ring-1 ring-white/10">
               <button onClick={() => setMode('edit')} className={`flex-1 py-3 px-6 rounded-full text-[11px] font-black transition-all ${mode === 'edit' ? 'bg-white text-[#1A1A1A]' : 'text-white'}`}>التعديل</button>

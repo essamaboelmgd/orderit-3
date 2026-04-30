@@ -1,10 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageTransition from '../../components/PageTransition';
 import AdminSidebar from '../../components/AdminSidebar';
+import api from '../../api/axios';
 
 export default function AdminSettings() {
   const [template, setTemplate] = useState('light');
+  const [restaurant, setRestaurant] = useState({
+    id: '',
+    name_ar: '',
+    phone: '',
+    description_ar: '' // Using address_ar for description in UI if no description field exists
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRestaurantInfo = async () => {
+      try {
+        const res = await api.get('/menu/restaurants');
+        if (res.data && res.data.length > 0) {
+          const r = res.data[0];
+          setRestaurant({
+            id: r.id,
+            name_ar: r.name_ar || r.name_en || '',
+            phone: r.phone || '',
+            description_ar: r.address_ar || r.address_en || ''
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurantInfo();
+  }, []);
+
+  const handleSave = async () => {
+    if (!restaurant.id) return;
+    try {
+      await api.put(`/menu/restaurants/${restaurant.id}`, {
+        name_ar: restaurant.name_ar,
+        name_en: restaurant.name_ar, // fallback
+        phone: restaurant.phone,
+        address_ar: restaurant.description_ar,
+        address_en: restaurant.description_ar, // fallback
+        image_path: "" // optional
+      });
+      alert('تم حفظ التغييرات بنجاح');
+    } catch (error) {
+      console.error("Error updating restaurant", error);
+      alert('حدث خطأ أثناء حفظ التغييرات');
+    }
+  };
 
   return (
     <PageTransition>
@@ -41,19 +89,21 @@ export default function AdminSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-bold mb-2 text-on-surface">اسم المطعم</label>
-                  <input type="text" defaultValue="لا كوزينا" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                  <input value={restaurant.name_ar} onChange={e => setRestaurant({...restaurant, name_ar: e.target.value})} type="text" placeholder="اسم المطعم" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold mb-2 text-on-surface">رقم الهاتف</label>
-                  <input type="tel" defaultValue="0501234567" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                  <input value={restaurant.phone} onChange={e => setRestaurant({...restaurant, phone: e.target.value})} type="tel" placeholder="0501234567" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-left" dir="ltr" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold mb-2 text-on-surface">وصف المطعم</label>
-                  <textarea defaultValue="مأكولات إيطالية فاخرة" rows="3" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+                  <label className="block text-sm font-bold mb-2 text-on-surface">العنوان / الوصف</label>
+                  <textarea value={restaurant.description_ar} onChange={e => setRestaurant({...restaurant, description_ar: e.target.value})} rows="3" className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
-                <button className="bg-primary text-white font-bold px-8 py-3 rounded-xl active:scale-95 transition-transform hover:bg-primary/90">حفظ التغييرات</button>
+                <button onClick={handleSave} disabled={loading} className="bg-primary text-white font-bold px-8 py-3 rounded-xl active:scale-95 transition-transform hover:bg-primary/90 disabled:opacity-50">
+                  {loading ? 'جاري التحميل...' : 'حفظ التغييرات'}
+                </button>
               </div>
             </section>
 

@@ -1,27 +1,62 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import PageTransition from '../../components/PageTransition';
 import AdminSidebar from '../../components/AdminSidebar';
-import Logo from '../../components/Logo';
-
-const recentOrders = [
-  { id: '#10294', table: 'طاولة 08', items: 'برجر لحم، بطاطس مقلية، بيبسي...', total: '145 ج.م', status: 'جديد' },
-  { id: '#10293', table: 'طاولة 12', items: 'بيتزا مارجريتا، سلطة سيزر...', total: '88 ج.م', status: 'قيد التحضير' },
-  { id: '#10292', table: 'طاولة 03', items: 'أوزي لحم، زبادي، ماء...', total: '210 ج.م', status: 'جاهز' },
-  { id: '#10291', table: 'طاولة 05', items: 'باستا فيتوشيني، تيراميسو...', total: '112 ج.م', status: 'قيد التحضير' },
-];
+import api from '../../api/axios';
 
 const statusStyles = {
-  'جديد': 'bg-primary-fixed text-on-primary-fixed-variant',
-  'قيد التحضير': 'bg-tertiary-container text-on-tertiary-fixed',
-  'جاهز': 'bg-green-100 text-green-800',
+  'draft': 'bg-gray-100 text-gray-800',
+  'pending': 'bg-yellow-100 text-yellow-800',
+  'confirmed': 'bg-blue-100 text-blue-800',
+  'preparing': 'bg-tertiary-container text-on-tertiary-fixed',
+  'ready': 'bg-green-100 text-green-800',
+  'completed': 'bg-gray-200 text-gray-600',
+  'cancelled': 'bg-red-100 text-red-800',
 };
 
-const times = ['منذ دقيقتين', 'منذ 10 دقائق', 'منذ 15 دقيقة', 'منذ 22 دقيقة'];
+const statusTranslations = {
+  'draft': 'مسودة',
+  'pending': 'جديد',
+  'confirmed': 'مؤكد',
+  'preparing': 'قيد التحضير',
+  'ready': 'جاهز',
+  'completed': 'مكتمل',
+  'cancelled': 'ملغي',
+};
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [tablesCount, setTablesCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ordersRes, tablesRes] = await Promise.all([
+          api.get('/orders', { params: { limit: 10 } }),
+          api.get('/tables/', { params: { limit: 100 } })
+        ]);
+
+        // Ensure we always have arrays even if API returns undefined/null for empty lists
+        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+
+        // Handle tables depending on API response format (if it's array or string as per docs, assume array of objects)
+        const tablesData = Array.isArray(tablesRes.data) ? tablesRes.data : [];
+        setTablesCount(tablesData.length);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Calculate Stats
+  const todayOrders = orders.filter(o => o.status !== 'draft'); // simplistic filter for now
+  const totalRevenue = todayOrders.reduce((acc, curr) => acc + (parseFloat(curr.total_price) || 0), 0);
+
   return (
     <PageTransition>
       <div className="bg-surface text-on-surface antialiased min-h-screen pb-16 md:pb-0" dir="rtl">
@@ -34,12 +69,6 @@ export default function AdminDashboard() {
               <div className="relative group">
                 <img alt="User profile" className="w-10 h-10 rounded-full object-cover border-2 border-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO3HYy-dYZdoqtHEeeNsO2l4kkHRZO7unIp_jCT6Nm66BZ2tUVObgKx55UBSIj2azB50aiCcTLm_coacDiq2xNQnO9zu3tDtDcHfTJVx-vus-BNdWij98yY0hMjCXFcLCV5gjX7See_eAWPX1IBqb1btS4gdhIx0_5xqt7VaqlfLiOduy2Ko-YsLB76LIsPHSL-Hsgh5mDqs7fYo9APY3j_KtXV2UXvM575lMKA52ZePLecHMAJHG9zb_Mdr0ubxYXZ284LuRdwI5C" />
               </div>
-              <button className="p-2 hover:bg-neutral-50 rounded-full text-neutral-600 transition-colors active:scale-95">
-                <span className="material-symbols-outlined">notifications</span>
-              </button>
-              <button className="p-2 hover:bg-neutral-50 rounded-full text-neutral-600 transition-colors active:scale-95">
-                <span className="material-symbols-outlined">settings</span>
-              </button>
             </div>
             <div className="flex-1 flex justify-center md:justify-start px-8">
               <h1 className="text-2xl font-black text-primary tracking-tighter">Dashboard</h1>
@@ -73,33 +102,30 @@ export default function AdminDashboard() {
               <div className="bg-surface-container-lowest p-6 rounded-xl border-b-4 border-primary/20">
                 <div className="flex justify-between items-start mb-4">
                   <span className="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg">receipt</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">اليوم</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">ايرادات اليوم</span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-neutral-500 text-sm font-medium">طلبات اليوم</h3>
-                  <p className="text-3xl font-black text-on-surface">128</p>
+                  <p className="text-3xl font-black text-on-surface">{loading ? '-' : todayOrders.length}</p>
                 </div>
               </div>
 
               <div className="bg-surface-container-lowest p-6 rounded-xl border-b-4 border-primary/20">
                 <div className="flex justify-between items-start mb-4">
                   <span className="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg">payments</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">الشهر</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">ايرادات الشهر</span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-neutral-500 text-sm font-medium">إجمالي الإيرادات</h3>
-                  <p className="text-3xl font-black text-on-surface">4,250 <span className="text-sm font-medium text-secondary">ج.م</span></p>
+                  <p className="text-3xl font-black text-on-surface">{loading ? '-' : totalRevenue.toFixed(2)} <span className="text-sm font-medium text-secondary">ج.م</span></p>
                 </div>
               </div>
 
               <div className="bg-surface-container-lowest p-6 rounded-xl border-b-4 border-primary/20">
                 <div className="flex justify-between items-start mb-4">
                   <span className="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg">chair</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">متاح</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">الطاولات</span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-neutral-500 text-sm font-medium">عدد الطاولات</h3>
-                  <p className="text-3xl font-black text-on-surface">24</p>
+                  <p className="text-3xl font-black text-on-surface">{loading ? '-' : tablesCount}</p>
                 </div>
               </div>
 
@@ -109,8 +135,7 @@ export default function AdminDashboard() {
                   <span className="text-xs font-bold uppercase tracking-widest text-secondary">الأكثر مبيعاً</span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-neutral-500 text-sm font-medium">أكثر صنف مطلوب</h3>
-                  <p className="text-xl font-bold text-on-surface">برجر كلاسيك</p>
+                  <p className="text-xl font-bold text-on-surface">-</p>
                 </div>
               </div>
             </section>
@@ -134,18 +159,24 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-surface-container">
-                    {recentOrders.map((o, i) => (
-                      <tr key={o.id} className="hover:bg-surface-container-low transition-colors group">
-                        <td className="px-6 py-5 font-bold text-primary">{o.id}</td>
-                        <td className="px-6 py-5 font-medium">{o.table}</td>
-                        <td className="px-6 py-5 text-sm text-secondary">{o.items}</td>
-                        <td className="px-6 py-5 font-bold text-on-surface">{o.total}</td>
-                        <td className="px-6 py-5 flex justify-center">
-                          <span className={`${statusStyles[o.status]} px-3 py-1 rounded-full text-xs font-bold`}>{o.status}</span>
-                        </td>
-                        <td className="px-6 py-5 text-xs text-secondary">{times[i]}</td>
-                      </tr>
-                    ))}
+                    {loading ? (
+                      <tr><td colSpan="6" className="text-center py-8 text-secondary">جاري التحميل...</td></tr>
+                    ) : orders.length === 0 ? (
+                      <tr><td colSpan="6" className="text-center py-8 text-secondary">لا توجد طلبات بعد</td></tr>
+                    ) : (
+                      orders.map((o) => (
+                        <tr key={o.id} className="hover:bg-surface-container-low transition-colors group">
+                          <td className="px-6 py-5 font-bold text-primary">#{o.id?.slice(0, 8)}</td>
+                          <td className="px-6 py-5 font-medium">{o.table_id || 'طاولة'}</td>
+                          <td className="px-6 py-5 text-sm text-secondary">{o.items?.length || 0} أصناف</td>
+                          <td className="px-6 py-5 font-bold text-on-surface">{parseFloat(o.total_price || 0).toFixed(2)} ج.م</td>
+                          <td className="px-6 py-5 flex justify-center">
+                            <span className={`${statusStyles[o.status] || statusStyles['draft']} px-3 py-1 rounded-full text-xs font-bold`}>{statusTranslations[o.status] || o.status}</span>
+                          </td>
+                          <td className="px-6 py-5 text-xs text-secondary">الآن</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

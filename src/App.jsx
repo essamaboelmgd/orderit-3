@@ -34,9 +34,14 @@ import Navbar from './components/Navbar';
 
 export default function App() {
   const location = useLocation();
+  
+  // Hide Navbar on admin, auth, and app-specific routes
+  const hideNavbarPaths = ['/admin', '/superadmin', '/login', '/register', '/staff-login', '/menu', '/cart', '/order-success'];
+  const shouldHideNavbar = hideNavbarPaths.some(path => location.pathname.startsWith(path));
+
   return (
     <>
-      <Navbar />
+      {!shouldHideNavbar && <Navbar />}
       <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<LandingPage />} />

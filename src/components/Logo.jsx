@@ -11,7 +11,7 @@ export default function Logo({ lightBg = false, size = 'lg' }) {
   };
   return (
     <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
-      <span className={`font-extrabold tracking-tight ${sizes[size] || sizes.lg}`}>
+      <span className={`font-cairo font-extrabold tracking-tight ${sizes[size] || sizes.lg}`}>
         <span style={{ color: '#F03030' }}>Order</span>
         <span style={{ color: lightBg ? '#1A1A1A' : '#FFFFFF' }}>It</span>
       </span>

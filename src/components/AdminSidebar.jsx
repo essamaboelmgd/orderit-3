@@ -8,7 +8,7 @@ const allNavItems = [
   { to: '/admin/orders', icon: 'receipt_long', label: 'الطلبات', roles: ['admin', 'staff'] },
   { to: '/admin/tables', icon: 'table_restaurant', label: 'الطاولات', roles: ['admin'] },
   { to: '/admin/staff', icon: 'person', label: 'الموظفين', roles: ['admin'] },
-  { to: '/admin/settings', icon: 'settings', label: 'الإعدادات', roles: ['admin'] },
+  // { to: '/admin/settings', icon: 'settings', label: 'الإعدادات', roles: ['admin'] },
 ];
 
 export default function AdminSidebar() {
@@ -18,9 +18,13 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <aside className="fixed right-0 top-0 h-full flex flex-col p-4 z-40 overflow-y-auto bg-primary text-white w-64 border-l border-neutral-200 hidden md:flex">
+      <aside className="fixed right-0 top-0 h-full flex flex-col p-4 z-40 overflow-y-auto bg-black text-white w-64 border-l border-neutral-800 hidden md:flex">
         <div className="flex flex-col gap-1 mb-8 px-4 mt-2">
           <Logo size="lg" />
+          {/* <span className={`font-cairo font-extrabold tracking-tight text-3xl`}>
+            <span style={{ color: '#000000ff' }}>Order</span>
+            <span style={{ color: '#FFFFFF' }}>It</span>
+          </span> */}
           <span className="text-xs font-medium text-white/70 uppercase tracking-widest">Premium Management</span>
         </div>
         <nav className="flex flex-col gap-2 flex-grow">

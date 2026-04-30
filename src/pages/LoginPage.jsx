@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
+import api from '../api/axios';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
-import Logo from '../components/Logo';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -12,9 +14,8 @@ const fadeUp = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const [form, setForm] = useState({ phone: '', password: '', remember: false });
+  const { checkAuth } = useAuth();
+  const [form, setForm] = useState({ email: '', password: '', remember: false });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,18 +25,41 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
-      const result = login({ phone: form.phone, password: form.password });
-      setLoading(false);
+    try {
+      const payload = {
+        email: form.email,
+        password: form.password
+      };
 
-      if (result.success) {
-        if (result.role === 'superadmin') navigate('/superadmin');
-        else if (result.role === 'admin') navigate('/admin');
-        else if (result.role === 'staff') navigate('/admin/orders');
-      } else {
-        setError(result.message);
+      const res = await api.post('/auth/login', payload);
+      
+      const { access_token, refresh_token } = res.data;
+      Cookies.set('access_token', access_token, { expires: form.remember ? 7 : 1 });
+      if (refresh_token) {
+        Cookies.set('refresh_token', refresh_token, { expires: form.remember ? 30 : 7 });
       }
-    }, 600);
+      // We must get the updated user context here to know where to navigate
+      // Since checkAuth sets the context async, we can check the decoded token directly
+      const decoded = jwtDecode(access_token);
+      let userRole = decoded.type === 'owner' ? 'admin' : decoded.type;
+      if (['manager', 'cashier', 'waiter', 'kitchen'].includes(userRole)) {
+        userRole = 'staff';
+      }
+
+      if (userRole === 'staff') {
+        await checkAuth();
+        navigate('/admin/orders');
+      } else {
+        await checkAuth();
+        navigate('/admin');
+      }
+    } catch (err) {
+      const detail = err.response?.data?.detail;
+      const errMsg = Array.isArray(detail) ? detail[0]?.msg : (typeof detail === 'string' ? detail : 'حدث خطأ أثناء تسجيل الدخول. تأكد من بياناتك.');
+      setError(errMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,22 +116,22 @@ export default function LoginPage() {
                 </AnimatePresence>
 
                 <motion.form variants={fadeUp} onSubmit={handleLogin} className="space-y-5">
-                  {/* Phone */}
+                  {/* Email */}
                   <div className="space-y-1.5">
-                    <label className="text-sm font-bold text-on-surface-variant pr-1" htmlFor="phone">
-                      رقم الجوال
+                    <label className="text-sm font-bold text-on-surface-variant pr-1" htmlFor="email">
+                      البريد الإلكتروني
                     </label>
                     <div className="relative group">
                       <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-xl">
-                        call
+                        mail
                       </span>
                       <input
-                        id="phone"
-                        type="tel"
+                        id="email"
+                        type="email"
                         dir="ltr"
-                        placeholder="01X XXXX XXXX"
-                        value={form.phone}
-                        onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                        placeholder="user@example.com"
+                        value={form.email}
+                        onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                         required
                         className="w-full pr-12 pl-4 py-3.5 bg-surface-container rounded-xl border border-outline-variant/10 focus:border-primary focus:bg-surface-container-lowest outline-none transition-all text-on-surface placeholder:text-outline/50"
                       />

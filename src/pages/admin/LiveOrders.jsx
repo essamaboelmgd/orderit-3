@@ -2,20 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from '../../components/PageTransition';
 import AdminSidebar from '../../components/AdminSidebar';
-import { initialOrders } from '../../data/dummyData';
+import api from '../../api/axios';
 
 export default function LiveOrders() {
-  const [orders, setOrders] = useState(initialOrders);
-  
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders', { params: { limit: 50 } });
+        setOrders(Array.isArray(res.data) ? res.data : []);
+      } catch (error) {
+        console.error("Error fetching live orders", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 10000); // Poll every 10s
+    return () => clearInterval(interval);
+  }, []);
+
   const handlePrint = (orderId) => {
     window.print();
   };
 
-  const updateOrderStatus = (id, newStatus) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus, time: newStatus === 'preparing' ? 'الآن' : o.time } : o));
+  const updateOrderStatus = async (id, newStatus) => {
+    try {
+      // Optimistic update
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
+      await api.patch(`/orders/${id}/status`, { status: newStatus });
+    } catch (error) {
+      console.error("Error updating order status", error);
+      // Revert on error could be implemented here
+    }
   };
-  
-  const newOrders = orders.filter(o => o.status === 'new');
+
+  const newOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
   const preparingOrders = orders.filter(o => o.status === 'preparing');
   const readyOrders = orders.filter(o => o.status === 'ready');
   return (
@@ -28,14 +53,8 @@ export default function LiveOrders() {
           <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl shadow-sm px-6 py-3 flex flex-row-reverse items-center justify-between w-full">
             <div className="flex items-center gap-4 flex-row-reverse">
               <div className="relative group">
-                <img alt="User profile" className="w-10 h-10 rounded-full object-cover border-2 border-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl3T0GLQuK1r7vI--E_QwqEGnmLhnmstXyj8g_Z8b6RwjIcg7GYdBUTL53ZvGRJXCV-znS0y3E3kvhrmr8-Y8ChRw-sUGfkChpsZ37EKFHB-NWXd-LV_AMP-e3frWcQhBpVorZOtS8tSDR7D8hrt6bEta7F-umaNZuUcpDd4aTSoFGlfWijVga2Vkxdf5laIueuHb0jj7i41bcD75V-oWwm44PbCsvHORuroErmqX3rI2t4gbQUBNDnkf0GNS4f0CprH0v9lW6faao" />
+                <img alt="User profile" className="w-10 h-10 rounded-full object-cover border-2 border-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO3HYy-dYZdoqtHEeeNsO2l4kkHRZO7unIp_jCT6Nm66BZ2tUVObgKx55UBSIj2azB50aiCcTLm_coacDiq2xNQnO9zu3tDtDcHfTJVx-vus-BNdWij98yY0hMjCXFcLCV5gjX7See_eAWPX1IBqb1btS4gdhIx0_5xqt7VaqlfLiOduy2Ko-YsLB76LIsPHSL-Hsgh5mDqs7fYo9APY3j_KtXV2UXvM575lMKA52ZePLecHMAJHG9zb_Mdr0ubxYXZ284LuRdwI5C" />
               </div>
-              <button className="p-2 hover:bg-neutral-50 rounded-full text-neutral-600 transition-colors active:scale-95">
-                <span className="material-symbols-outlined">notifications</span>
-              </button>
-              <button className="p-2 hover:bg-neutral-50 rounded-full text-neutral-600 transition-colors active:scale-95">
-                <span className="material-symbols-outlined">settings</span>
-              </button>
             </div>
             <div className="flex-1 flex justify-center md:justify-start px-8">
               <h1 className="text-2xl font-black text-primary tracking-tighter">Live Orders</h1>
@@ -78,25 +97,25 @@ export default function LiveOrders() {
                   </div>
                   <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-black">{newOrders.length} طلبات</span>
                 </div>
-                
+
                 <AnimatePresence>
                   {newOrders.map(order => (
                     <motion.div key={order.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-transparent hover:border-red-100 transition-all group">
                       <div className="flex justify-between items-start mb-4">
-                        <span className="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-lg text-sm font-bold tracking-tighter">طاولة #{order.tableNumber}</span>
-                        <span className="text-xs text-secondary font-medium">{order.time}</span>
+                        <span className="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-lg text-sm font-bold tracking-tighter">طاولة #{order.table_id || '?'}</span>
+                        <span className="text-xs text-secondary font-medium">الآن</span>
                       </div>
                       <ul className="space-y-3 mb-6">
-                        {order.items.map((item, i) => (
+                        {order.items?.map((item, i) => (
                           <li key={i} className="flex justify-between items-center">
-                            <span className="text-on-surface font-bold">{item.name}</span>
-                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.qty}</span>
+                            <span className="text-on-surface font-bold">{item.name || item.menu_item_id}</span>
+                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.quantity}</span>
                           </li>
                         ))}
                       </ul>
                       <div className="pt-4 border-t border-surface-container-low flex items-center justify-between mb-5">
                         <span className="text-secondary text-xs uppercase font-bold tracking-widest">الإجمالي</span>
-                        <span className="text-primary font-black text-lg">{order.total.toFixed(2)} ج.م</span>
+                        <span className="text-primary font-black text-lg">{parseFloat(order.total_price || 0).toFixed(2)} ج.م</span>
                       </div>
                       <button onClick={() => updateOrderStatus(order.id, 'preparing')} className="w-full bg-primary text-on-primary py-3 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
                         <span>قبول الطلب</span>
@@ -121,14 +140,14 @@ export default function LiveOrders() {
                   {preparingOrders.map(order => (
                     <motion.div key={order.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border-r-2 border-orange-200 group">
                       <div className="flex justify-between items-start mb-4">
-                        <span className="bg-orange-50 text-orange-700 px-3 py-1 rounded-lg text-sm font-bold">طاولة #{order.tableNumber}</span>
-                        <span className="text-xs text-secondary font-medium">في المطبخ: {order.time}</span>
+                        <span className="bg-orange-50 text-orange-700 px-3 py-1 rounded-lg text-sm font-bold">طاولة #{order.table_id || '?'}</span>
+                        <span className="text-xs text-secondary font-medium">في المطبخ</span>
                       </div>
                       <ul className="space-y-3 mb-6">
-                        {order.items.map((item, i) => (
+                        {order.items?.map((item, i) => (
                           <li key={i} className="flex justify-between items-center">
-                            <span className="text-on-surface font-bold">{item.name}</span>
-                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.qty}</span>
+                            <span className="text-on-surface font-bold">{item.name || item.menu_item_id}</span>
+                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.quantity}</span>
                           </li>
                         ))}
                       </ul>
@@ -158,19 +177,19 @@ export default function LiveOrders() {
                   {readyOrders.map(order => (
                     <motion.div key={order.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border-r-2 border-green-200 group">
                       <div className="flex justify-between items-start mb-4">
-                        <span className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">طاولة #{order.tableNumber}</span>
+                        <span className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">طاولة #{order.table_id || '?'}</span>
                         <span className="text-xs text-green-600 font-black animate-pulse">ينتظر النادل</span>
                       </div>
                       <ul className="space-y-3 mb-6">
-                        {order.items.map((item, i) => (
+                        {order.items?.map((item, i) => (
                           <li key={i} className="flex justify-between items-center">
-                            <span className="text-on-surface font-bold">{item.name}</span>
-                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.qty}</span>
+                            <span className="text-on-surface font-bold">{item.name || item.menu_item_id}</span>
+                            <span className="bg-surface-container-low px-2 py-1 rounded text-xs">x{item.quantity}</span>
                           </li>
                         ))}
                       </ul>
                       <div className="flex gap-2">
-                        <button onClick={() => updateOrderStatus(order.id, 'delivered')} className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <button onClick={() => updateOrderStatus(order.id, 'completed')} className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
                           <span>تم التوصيل</span>
                         </button>
                         <button onClick={() => handlePrint(order.id)} className="w-12 h-12 bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface-variant rounded-lg flex items-center justify-center active:scale-95">

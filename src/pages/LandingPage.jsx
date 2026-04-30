@@ -79,7 +79,7 @@ export default function LandingPage() {
 
   return (
     <PageTransition>
-      <div className="bg-[#FFF8F9] text-[#1A1A1A] antialiased overflow-x-hidden min-h-screen font-tajawal selection:bg-primary/20" dir="rtl">
+      <div className="bg-[#FFF8F9] text-[#1A1A1A] antialiased overflow-x-hidden min-h-screen font-cairo selection:bg-primary/20" dir="rtl">
         
         {/* ── Navbar ── */}
         {/* Global Navbar in App.jsx handles this now */}
@@ -274,7 +274,7 @@ export default function LandingPage() {
                 { number: "03", icon: "task_alt", title: "استقبل وحضر الطلبات", desc: "تصلك الطلبات فوراً إلى المطبخ أو لوحة التحكم، مما يسرع عملية الخدمة ويرفع الكفاءة." },
               ].map((step, i) => (
                 <AnimateOnScroll key={i} delay={i * 0.1} className="group p-10 bg-white rounded-[2.5rem] border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all relative overflow-hidden">
-                   <div className="absolute top-4 left-6 text-7xl font-black text-gray-50 group-hover:text-primary/5 transition-colors">{step.number}</div>
+                   <div className="absolute top-4 left-6 text-7xl font-black text-primary/10 group-hover:text-primary/20 transition-colors">{step.number}</div>
                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:rotate-6">
                       <span className="material-symbols-outlined text-3xl" data-weight="fill">{step.icon}</span>
                    </div>
@@ -328,7 +328,7 @@ export default function LandingPage() {
 
               {/* Feature 3 - Small */}
               <motion.div className="bg-[#FFF8F9] border border-outline-variant/10 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-sm" whileHover={{ y: -5 }}>
-                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 font-tajawal">
+                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 font-cairo">
                     <span className="material-symbols-outlined text-3xl">language</span>
                  </div>
                  <div>
@@ -369,8 +369,8 @@ export default function LandingPage() {
             <div className="z-10">
               <AnimateOnScroll>
                 <h2 className="text-primary font-black uppercase tracking-[0.3em] text-xs mb-6">ثقة بلا حدود</h2>
-                <h2 className="text-4xl md:text-6xl font-black text-white leading-tight mb-8 font-tajawal italic">لماذا يختارنا <br /> أفضل أصحاب المطاعم؟</h2>
-                <p className="text-white/60 text-lg mb-12 max-w-md font-medium leading-relaxed font-tajawal">نحن لا نقدم مجرد تطبيق، بل نقدم شريكاً يعتمد عليه في نمو واستقرار أعمال مطعمك يوماً بعد يوم.</p>
+                <h2 className="text-4xl md:text-6xl font-black text-white leading-tight mb-8 font-cairo italic">لماذا يختارنا <br /> أفضل أصحاب المطاعم؟</h2>
+                <p className="text-white/60 text-lg mb-12 max-w-md font-medium leading-relaxed font-cairo">نحن لا نقدم مجرد تطبيق، بل نقدم شريكاً يعتمد عليه في نمو واستقرار أعمال مطعمك يوماً بعد يوم.</p>
                 
                 <div className="space-y-6">
                   {[
@@ -399,7 +399,7 @@ export default function LandingPage() {
                 <AnimateOnScroll key={i} delay={i * 0.2} variants={{ hidden: { opacity: 0, x: 50 }, visible: { opacity: 1, x: 0 } }}>
                    <div className={`bg-white/5 border-l-4 ${rev.color} p-8 rounded-2xl shadow-xl hover:bg-white/[0.08] transition-colors`}>
                       <div className="flex text-amber-500 mb-6 tracking-widest">★★★★★</div>
-                      <p className="text-white text-lg font-medium italic mb-8 leading-relaxed font-tajawal">{rev.quote}</p>
+                      <p className="text-white text-lg font-medium italic mb-8 leading-relaxed font-cairo">{rev.quote}</p>
                       <div className="flex items-center gap-4">
                          <img src={rev.img} alt={rev.name} className="w-12 h-12 rounded-full object-cover border-2 border-white/10" />
                          <div>
@@ -451,55 +451,25 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── Footer ── */}
-        <footer className="bg-white pt-24 pb-12 border-t border-outline-variant/10">
-          <div className="max-w-[1440px] mx-auto px-6">
-            <div className="grid md:grid-cols-4 gap-12 mb-20">
-              <div className="md:col-span-1">
-                <Logo size="2xl" lightBg />
-                <p className="text-secondary mt-8 leading-relaxed font-medium">نحن هنا لنصنع ثورة في عالم الضيافة والمطاعم باستخدام أحدث حلول التكنولوجيا والذكاء الاصطناعي.</p>
-                <div className="flex gap-4 mt-8">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-10 h-10 bg-gray-100 rounded-full hover:bg-primary transition-colors cursor-pointer" />
-                  ))}
-                </div>
-              </div>
-              <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
-                 <div>
-                    <h4 className="font-black text-lg mb-6">المنتج</h4>
-                    <ul className="space-y-4 text-secondary font-medium">
-                      <li className="hover:text-primary cursor-pointer transition-colors">المميزات</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">الأسعار</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">أمن البيانات</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">التكاملات</li>
-                    </ul>
-                 </div>
-                 <div>
-                    <h4 className="font-black text-lg mb-6">الشركة</h4>
-                    <ul className="space-y-4 text-secondary font-medium">
-                      <li className="hover:text-primary cursor-pointer transition-colors">من نحن</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">الوظائف</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">المدونة</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">الصحافة</li>
-                    </ul>
-                 </div>
-                 <div>
-                    <h4 className="font-black text-lg mb-6">الدعم</h4>
-                    <ul className="space-y-4 text-secondary font-medium">
-                      <li className="hover:text-primary cursor-pointer transition-colors">مركز المساعدة</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">سياسة الخصوصية</li>
-                      <li className="hover:text-primary cursor-pointer transition-colors">شروط الخدمة</li>
-                    </ul>
-                 </div>
-              </div>
+        {/* ── Final Footer (Matching Image) ── */}
+        <footer className="bg-[#1A1A1A] py-8 border-t-2 border-primary">
+          <div className="max-w-[1440px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Copyright (Left) */}
+            <div className="order-3 md:order-1 text-white/30 text-xs font-bold">
+              © 2025 OrderIt. جميع الحقوق محفوظة.
             </div>
-            <div className="pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-secondary/60">
-               <div>© 2026 OrderIt. جميع الحقوق محفوظة.</div>
-               <div className="flex gap-8 uppercase tracking-widest">
-                  <span className="hover:text-primary cursor-pointer">English</span>
-                  <span className="hover:text-primary cursor-pointer">Privacy</span>
-                  <span className="hover:text-primary cursor-pointer">Terms</span>
-               </div>
+
+            {/* Links (Center) */}
+            <div className="order-2 flex flex-wrap justify-center items-center gap-6 lg:gap-12">
+              <a className="text-white/60 hover:text-white transition-colors font-bold text-sm" href="#features">المميزات</a>
+              <a className="text-white/60 hover:text-white transition-colors font-bold text-sm" href="#pricing">الأسعار</a>
+              <a className="text-white/60 hover:text-white transition-colors font-bold text-sm" href="#contact">تواصل معنا</a>
+              <a className="text-white/60 hover:text-white transition-colors font-bold text-sm" href="#privacy">الخصوصية</a>
+            </div>
+
+            {/* Logo (Right) */}
+            <div className="order-1 md:order-3">
+              <Logo size="lg" />
             </div>
           </div>
         </footer>
